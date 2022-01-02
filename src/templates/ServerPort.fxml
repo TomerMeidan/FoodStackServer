@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="214.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="serverSide.BMServerWindow">
+   <children>
+      <VBox fx:id="pathVBox" prefHeight="638.0" prefWidth="233.0" style="-fx-background-color: #D93B48;">
+         <children>
+            <VBox prefHeight="214.0" prefWidth="90.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Pane prefHeight="196.0" prefWidth="11.0" style="-fx-background-color: #F2C12E;" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Foodstack" textFill="WHITE">
+                           <font>
+                              <Font size="21.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+      </VBox>
+      <HBox prefHeight="638.0" prefWidth="10.0" style="-fx-background-color: #F2C12E;" />
+      <Pane prefHeight="200.0" prefWidth="437.0">
+         <children>
+            <Label layoutX="38.0" layoutY="24.0" text="Port:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="txtPort" layoutX="116.0" layoutY="22.0" />
+            <Button fx:id="connectBtn" layoutX="212.0" layoutY="138.0" mnemonicParsing="false" onAction="#onClickConnect" text="Connect" />
+            <Button fx:id="disconnectBtn" layoutX="30.0" layoutY="138.0" mnemonicParsing="false" onAction="#onClickDis" text="Disconnect" />
+            <TextField fx:id="txtUser" layoutX="116.0" layoutY="63.0" />
+            <Label layoutX="37.0" layoutY="65.0" text="User:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="38.0" layoutY="100.0" text="Password">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <CheckBox fx:id="defaultCB" layoutX="38.0" layoutY="175.0" mnemonicParsing="false" onAction="#onCBClick" text="Autofill" />
+            <PasswordField fx:id="txtPassword" layoutX="116.0" layoutY="98.0" />
+            <Button fx:id="importButton" layoutX="289.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickImportButton" text="Import" />
+         </children>
+      </Pane>
+   </children>
+</HBox>

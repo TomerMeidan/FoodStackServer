@@ -1,0 +1,50 @@
+######################## NEW RUN ############################
+2022-01-02 23:18:01 D DataBase : Driver definition succeed
+2022-01-02 23:18:01 D DataBase: DB user name: root
+2022-01-02 23:18:01 D DataBase: DB password: 1937258asdf
+2022-01-02 23:18:02 D DataBase : SQL connection succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import users succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import employers succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import HR succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import BM succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import Supplier succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import Customer succeed
+2022-01-02 23:18:02 W DATABASE: SQLException in approveUser
+2022-01-02 23:18:02 D DataBase : import CEO succeed
+2022-01-02 23:18:02 D PeriodicActivityService : Periodic activity service started
+2022-01-02 23:18:02 D PeriodicActivityService : Report Handler initialized.
+2022-01-02 23:18:02 D PeriodicActivityService : Next report update will take place on Tue Feb 01 23:18:00 IST 2022
+2022-01-02 23:18:02 W PeriodicActivityService: No reset for customer balance
+2022-01-02 23:18:03 D ComController: client : 127.0.0.1 (127.0.0.1) connected
+2022-01-02 23:18:09 D LoginPortalViewController: handleCommandFromClient: {"password":"123","command":"login was pressed","username":"BMUser2"}
+2022-01-02 23:18:09 D DATABASE: user (BMUser2) is approved
+2022-01-02 23:18:09 D LoginPortalViewController: Client = 127.0.0.1 (127.0.0.1) logged in as : Branch Manager
+2022-01-02 23:18:09 D LoginPortalViewController: handleCommandFromClient: {"home page":"branch manager","command":"home page is ready"}
+2022-01-02 23:18:09 D LoginPortalViewController: home page : branch manager is ready
+2022-01-02 23:18:09 W LoginPortalViewController: portal been switched to: Branch Manager
+2022-01-02 23:18:10 D BranchManagerPortalViewController: handleCommandFromClient: {"branch":"Center","command":"supplier registration was pressed"}
+2022-01-02 23:18:10 D DATABASE: supplier name:(BBB.C) is inactive
+2022-01-02 23:18:10 D DATABASE: supplier name:(Japanika.C) is inactive
+2022-01-02 23:18:11 D BranchManagerPortalViewController: handleCommandFromClient: {"command":"supplier registration window is ready"}
+2022-01-02 23:18:11 D BranchManagerPortalViewController: unknown message in handleCommandFromClient
+2022-01-02 23:18:24 D BranchManagerPortalViewController: handleCommandFromClient: {"password":"123","last name":"Dir","first name":"Shir","supplier name":"Japanika.C","delivery types":"YYY","register type":"supplier","command":"supplier register was pressed","username":"SUser2"}
+2022-01-02 23:18:26 D BranchManagerPortalViewController: handleCommandFromClient: {"home page":"branch manager","command":"home page is ready"}
+2022-01-02 23:18:26 D BranchManagerPortalViewController: unknown message in handleCommandFromClient
+2022-01-02 23:18:26 D BranchManagerPortalViewController: handleCommandFromClient: {"command":"logout was pressed"}
+2022-01-02 23:18:26 D BranchManagerPortalViewController: Client = 127.0.0.1 (127.0.0.1) logged out
+2022-01-02 23:18:31 D LoginPortalViewController: handleCommandFromClient: {"password":"123","command":"login was pressed","username":"CUser1"}
+2022-01-02 23:18:31 D DATABASE: user (CUser1) is approved
+2022-01-02 23:18:31 D DATABASE: getStatusByRole: ID:(9) have been found
+2022-01-02 23:18:31 D LoginPortalViewController: Client = 127.0.0.1 (127.0.0.1) logged in as : Customer
+2022-01-02 23:18:31 D LoginPortalViewController: handleCommandFromClient: {"home page":"Customer","command":"home page is ready"}
+2022-01-02 23:18:31 D LoginPortalViewController: home page : Customer is ready
+2022-01-02 23:18:31 W LoginPortalViewController: portal been switched to: Customer
+2022-01-02 23:18:32 W CustomerPortalViewController: handleCommandFromClient: Unknown command : Restaurant list is displayed
+2022-01-02 23:18:34 W CustomerPortalViewController: handleCommandFromClient: Unknown command : Restaurant list is displayed
+2022-01-02 23:18:43 W CustomerPortalViewController: handleCommandFromClient: Unknown command : home page is ready
