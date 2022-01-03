@@ -37,6 +37,14 @@ import util.MustFeature;
 import util.OptionalFeature;
 import util.Order;
 
+/**
+ * DataBase
+ * 
+ * This class is the Database controller.
+ * This class holds a Connection to MySQL database server.
+ * This class has password and user variables to connect.
+ * @author Roman Milman
+ */
 @SuppressWarnings("unchecked")
 public class DataBase {
 
@@ -45,6 +53,12 @@ public class DataBase {
 	private String password;
 	private String user;
 
+	/**
+	 * start
+	 * 
+	 * This method starts the connection to MySQL database server.
+	 * @author Roman Milman
+	 */
 	public void start() throws SQLException {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -78,6 +92,15 @@ public class DataBase {
 		new DBImport(conn, connImport).importAll();
 	}
 
+	/**
+	 * validateUser
+	 * 
+	 * This method validates user information.
+	 * This method checks if username and password given as input are correct.
+	 * @param JSONObject json - includes 'username' and 'password' keys as users values accordingly.
+	 * @return JSONObject
+	 * @author Roman Milman
+	 */
 	public JSONObject validateUser(JSONObject json) {
 		ResultSet rs;
 		String username = Message.getValueString(json, "username");
