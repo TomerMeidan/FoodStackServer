@@ -37,6 +37,14 @@ import util.MustFeature;
 import util.OptionalFeature;
 import util.Order;
 
+/**
+ * DataBase
+ * 
+ * This class is the Database controller.
+ * This class holds a Connection to MySQL database server.
+ * This class has password and user variables to connect.
+ * @author Roman Milman
+ */
 @SuppressWarnings("unchecked")
 public class DataBase {
 
@@ -45,6 +53,12 @@ public class DataBase {
 	private String password;
 	private String user;
 
+	/**
+	 * start
+	 * 
+	 * This method starts the connection to MySQL database server.
+	 * @author Roman Milman
+	 */
 	public void start() throws SQLException {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -78,6 +92,15 @@ public class DataBase {
 		new DBImport(conn, connImport).importAll();
 	}
 
+	/**
+	 * validateUser
+	 * 
+	 * This method validates user information.
+	 * This method checks if username and password given as input are correct.
+	 * @param JSONObject json - includes 'username' and 'password' keys as users values accordingly.
+	 * @return JSONObject
+	 * @author Roman Milman
+	 */
 	public JSONObject validateUser(JSONObject json) {
 		ResultSet rs;
 		String username = Message.getValueString(json, "username");
@@ -816,6 +839,14 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * getEmployerForHr
+	 * 
+	 * This method builds JSONArray of employers that this is their HR.
+	 * @param String userID.
+	 * @return JSONObject - "employers" : JSONArray of employers info.
+	 * @author Roman Milman
+	 */
 	public JSONObject getEmployerForHr(String userID) {
 		ResultSet rs;
 		JSONObject response = new JSONObject();
@@ -3048,6 +3079,14 @@ public class DataBase {
 		return false;
 	}
 
+	/**
+	 * getInactiveBusinessCustomers
+	 * 
+	 * This method builds JSONArray with 'inactive' business customers by employerID given as input.
+	 * @param JSONObject json - includes "employerID" key for employerID id value.
+	 * @return JSONObject - "customers" : JSONArray with customer info.
+	 * @author Roman Milman
+	 */
 	public JSONObject getInactiveBusinessCustomers(JSONObject json) {
 		ResultSet rs;
 		int employerID = Integer.valueOf(Message.getValueString(json, "employerID"));
@@ -3086,6 +3125,14 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * activeCustomer
+	 * 
+	 * This method updates customers table with status 'active' by given id as input.
+	 * @param JSONObject json - includes "id" key for customers id value.
+	 * @return JSONObject - "update" : "customer has been activated" if succeeded, otherwise returns null.
+	 * @author Roman Milman
+	 */
 	public JSONObject activeCustomer(JSONObject json) {
 		String id = Message.getValueString(json, "id");
 		JSONObject response = new JSONObject();
@@ -3110,6 +3157,15 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * registerEmployer
+	 * 
+	 * This method updates employer in database as 'inactive' and sets w4c, balance columns.
+	 * This method sets 'balance' and 'w4c' as given in input.
+	 * @param JSONObject json - includes: 'employer name','balance','w4c' keys for employer accordingly values.
+	 * @return JSONObject - "update" : "employer has been registered" if succeed, otherwise "could not registered employer"
+	 * @author Roman Milman
+	 */
 	public JSONObject registerEmployer(JSONObject json) {
 		String employerName = Message.getValueString(json, "employer name");
 		JSONObject response = new JSONObject();

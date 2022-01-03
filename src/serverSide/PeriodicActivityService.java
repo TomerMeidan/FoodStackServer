@@ -19,10 +19,11 @@ import common.Message;
 import common.Logger.Level;
 
 /**
- * PeriodicActivityService needs methods like: UpdateEveryMidnight() - resets
- * values at midnight (Business client credit)
+ * PeriodicActivityService
  * 
- * @version 1.0
+ * This class handles periodic activity's.
+ * Example - every period of time creates reports.
+ * @author Roman Milman
  */
 public class PeriodicActivityService {
 
