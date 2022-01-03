@@ -806,6 +806,14 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * getEmployerForHr
+	 * 
+	 * This method builds JSONArray of employers that this is their HR.
+	 * @param String userID.
+	 * @return JSONObject - "employers" : JSONArray of employers info.
+	 * @author Roman Milman
+	 */
 	public JSONObject getEmployerForHr(String userID) {
 		ResultSet rs;
 		JSONObject response = new JSONObject();
@@ -3033,6 +3041,14 @@ public class DataBase {
 		return false;
 	}
 
+	/**
+	 * getInactiveBusinessCustomers
+	 * 
+	 * This method builds JSONArray with 'inactive' business customers by employerID given as input.
+	 * @param JSONObject json - includes "employerID" key for employerID id value.
+	 * @return JSONObject - "customers" : JSONArray with customer info.
+	 * @author Roman Milman
+	 */
 	public JSONObject getInactiveBusinessCustomers(JSONObject json) {
 		ResultSet rs;
 		int employerID = Integer.valueOf(Message.getValueString(json, "employerID"));
@@ -3071,6 +3087,14 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * activeCustomer
+	 * 
+	 * This method updates customers table with status 'active' by given id as input.
+	 * @param JSONObject json - includes "id" key for customers id value.
+	 * @return JSONObject - "update" : "customer has been activated" if succeeded, otherwise returns null.
+	 * @author Roman Milman
+	 */
 	public JSONObject activeCustomer(JSONObject json) {
 		String id = Message.getValueString(json, "id");
 		JSONObject response = new JSONObject();
@@ -3095,6 +3119,15 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * registerEmployer
+	 * 
+	 * This method updates employer in database as 'inactive' and sets w4c, balance columns.
+	 * This method sets 'balance' and 'w4c' as given in input.
+	 * @param JSONObject json - includes: 'employer name','balance','w4c' keys for employer accordingly values.
+	 * @return JSONObject - "update" : "employer has been registered" if succeed, otherwise "could not registered employer"
+	 * @author Roman Milman
+	 */
 	public JSONObject registerEmployer(JSONObject json) {
 		String employerName = Message.getValueString(json, "employer name");
 		JSONObject response = new JSONObject();
