@@ -14,16 +14,33 @@ import common.Logger;
 import common.Message;
 import common.Parser;
 import common.Logger.Level;
-
+/**
+ * SupplierPortalViewController
+ * 
+ * This class is the Controller based on ECB pattern.
+ * This class controls Supplier events.
+ * This class holds db, com, connection, ID variables.
+ * ComController com - for handling communication.
+ * ConnectionToClient connection - for sending messages.
+ * String ID - is the userid in db, used for identifying user.
+ * @author Daniel Ohayon
+ */
+@SuppressWarnings("unchecked")
 public class SupplierPortalViewController implements PortalViewController {
 
 	private DataBase db;
 	private ComController com;
 	private ConnectionToClient connection;
 	private EventManager manage;
-
 	private String userID;
 
+	/**
+	 * SupplierPortalViewController constructor
+	 * 
+	 * @param DataBase db
+	 * @param ComController com
+	 * @param ConnectionToClient connection
+	 */
 	public SupplierPortalViewController(DataBase db, ComController com, ConnectionToClient connection) {
 		this.db = db;
 		this.com = com;
@@ -32,20 +49,34 @@ public class SupplierPortalViewController implements PortalViewController {
 		System.out.println("connection address: " + connection.getInetAddress());
 	}
 
+	/**
+	 * start
+	 * 
+	 * No use, for future flexibility.
+	 */
 	@Override
 	public void start() {
 		// TODO Auto-generated method stub
 
 	}
-
+	/**
+	 * start
+	 * 
+	 * No use, for future flexibility.
+	 */
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * handleCommandFromClient
+	 * 
+	 * handles commands from client
+	 * @param JSONObject msg - contains 'command' key for identifying which event occurred
+	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public void handleCommandFromClient(JSONObject json) {
 		JSONObject respons = new JSONObject();
 		switch (Message.getValue(json, "command")) {
@@ -178,7 +209,7 @@ public class SupplierPortalViewController implements PortalViewController {
 			}
 			break;
 		case "Save feature was pressed":
-			respons = db.saveFeature(json);
+			respons = db.immediateFeaturesCheck(json);
 			try {
 				connection.sendToClient(Parser.encode(respons));
 			} catch (IOException e) {
@@ -189,7 +220,7 @@ public class SupplierPortalViewController implements PortalViewController {
 			break;
 
 		case "Save edit feature was pressed":
-			respons = db.saveEditFeature(json);
+			respons = db.immediateFeaturesEditCheck(json);
 			try {
 				connection.sendToClient(Parser.encode(respons));
 			} catch (IOException e) {
@@ -400,12 +431,23 @@ public class SupplierPortalViewController implements PortalViewController {
 		}
 	
 	}
-
+	/**
+	 * getID
+	 * 
+	 * returns ID.
+	 * @return String
+	 * @author Roman Milman
+	 */
 	@Override
 	public String getID() {
 		return userID;
 	}
-
+	/**
+	 * setID
+	 * 
+	 * sets ID.
+	 * @return String
+	 */
 	@Override
 	public void setID(String ID) {
 		userID = ID;
