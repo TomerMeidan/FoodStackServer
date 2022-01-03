@@ -101,9 +101,9 @@ public class DataBase {
 					response.put("portalType", rs.getString("Role"));
 					response.put("userID", rs.getString("UserID"));
 					userID = rs.getString("UserID");
-					
-					switch(rs.getString("Role")) {
-					
+
+					switch (rs.getString("Role")) {
+
 					case "Customer":
 						status = getStatusByRole(userID, "customers");
 						break;
@@ -119,23 +119,24 @@ public class DataBase {
 					default:
 						status = "";
 						break;
-					
+
 					}
-										
+
 					response.put("branch", rs.getString("Branch"));
 					response.put("FirstName", rs.getString("FirstName"));
 					response.put("LastName", rs.getString("LastName"));
 					response.put("userID", userID);
-					
-					if(status == null) status = "null";
-					
-					if (!status.equals("") && !status.equals("active")){	
-						
+
+					if (status == null)
+						status = "null";
+
+					if (!status.equals("") && !status.equals("active")) {
+
 						response.put("status", "notOk");
 						response.put("notOk", status);
-						
-						}
-					else response.put("status", "ok");
+
+					} else
+						response.put("status", "ok");
 					return response;
 				}
 				// log
@@ -548,12 +549,15 @@ public class DataBase {
 	/**
 	 * registerRegularCustomer
 	 * 
-	 * This method updates customer in database as 'active' and sets w4c and id columns.
-	 * This method sets user as 'Customer'.
-	 * This method sets 'username' and 'password' as given in input.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for customers accordingly values.
-	 * @return JSONObject - "update" : "regular customer has been registered" if succeed, otherwise "could not register regular customer"
+	 * This method updates customer in database as 'active' and sets w4c and id
+	 * columns. This method sets user as 'Customer'. This method sets 'username' and
+	 * 'password' as given in input. This method updates both Tables, if any fails
+	 * rollback's.
+	 * 
+	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for
+	 *                   customers accordingly values.
+	 * @return JSONObject - "update" : "regular customer has been registered" if
+	 *         succeed, otherwise "could not register regular customer"
 	 * @author Roman Milman
 	 */
 	public JSONObject registerRegularCustomer(JSONObject json) {
@@ -635,8 +639,9 @@ public class DataBase {
 	/**
 	 * isEmployerExists
 	 * 
-	 * This method checks if employer exists in DB.
-	 * This method returns employersId as defined in DB, otherwise returns -1.
+	 * This method checks if employer exists in DB. This method returns employersId
+	 * as defined in DB, otherwise returns -1.
+	 * 
 	 * @param JSONObject json - includes: 'employer name'.
 	 * @return int
 	 * @author Roman Milman
@@ -678,13 +683,16 @@ public class DataBase {
 	/**
 	 * registerBusinessCustomer
 	 * 
-	 * This method updates customer in database as 'inactive' and sets w4c, id, employerID and balance columns.
-	 * This method sets user as 'Business Customer'.
-	 * This method sets 'username' and 'password' as given in input.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for customers accordingly values.
-	 * @param int employerID
-	 * @return JSONObject - "update" : "business customer has been registered" if succeed, otherwise "could not add business user to database"
+	 * This method updates customer in database as 'inactive' and sets w4c, id,
+	 * employerID and balance columns. This method sets user as 'Business Customer'.
+	 * This method sets 'username' and 'password' as given in input. This method
+	 * updates both Tables, if any fails rollback's.
+	 * 
+	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for
+	 *                   customers accordingly values.
+	 * @param int        employerID
+	 * @return JSONObject - "update" : "business customer has been registered" if
+	 *         succeed, otherwise "could not add business user to database"
 	 * @author Roman Milman
 	 */
 	public JSONObject registerBusinessCustomer(JSONObject json, int employerID) {
@@ -767,7 +775,9 @@ public class DataBase {
 	/**
 	 * getInactiveEmployers
 	 * 
-	 * This method builds JSONArray with employers that defined with status 'inactive' in DB, in the given branch as input.
+	 * This method builds JSONArray with employers that defined with status
+	 * 'inactive' in DB, in the given branch as input.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "employers" : JSONArray with employers
 	 * @author Roman Milman
@@ -843,8 +853,10 @@ public class DataBase {
 	 * activeEmployer
 	 * 
 	 * This method sets employers status to 'active' by given name as input.
+	 * 
 	 * @param JSONObject json - includes: 'name'.
-	 * @return JSONObject - "update" : "employer has been activated" if succeeded, otherwise null.
+	 * @return JSONObject - "update" : "employer has been activated" if succeeded,
+	 *         otherwise null.
 	 * @author Roman Milman
 	 */
 	public JSONObject activeEmployer(JSONObject json) {
@@ -1898,12 +1910,16 @@ public class DataBase {
 	/**
 	 * registerSupplier
 	 * 
-	 * This method updates supplier in database as 'active' and sets deliveryTypes columns.
-	 * This method sets 'username' and 'password' as given in input.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param JSONObject json - includes: 'supplier name','username','password','delivery types' keys for supplier info accordingly.
+	 * This method updates supplier in database as 'active' and sets deliveryTypes
+	 * columns. This method sets 'username' and 'password' as given in input. This
+	 * method updates both Tables, if any fails rollback's.
+	 * 
+	 * @param JSONObject json - includes: 'supplier
+	 *                   name','username','password','delivery types' keys for
+	 *                   supplier info accordingly.
 	 * @author Roman Milman
-	 * @return JSONObject - "update" : "supplier has been registered" if succeed, other wise "could not register supplier"
+	 * @return JSONObject - "update" : "supplier has been registered" if succeed,
+	 *         other wise "could not register supplier"
 	 */
 	public JSONObject registerSupplier(JSONObject json) {
 		JSONObject response = new JSONObject();
@@ -2127,7 +2143,7 @@ public class DataBase {
 		String imgType = Message.getValueString(json, "imgType");
 		Statement stmt;
 		PreparedStatement stmtP;
-		ResultSet rs;
+		ResultSet rs1;
 		ArrayList<JSONObject> itemsDetails = new ArrayList<>();
 		String userID = Message.getValueString(json, "userID");
 		String itemType = Message.getValueString(json, "itemType");
@@ -2141,15 +2157,14 @@ public class DataBase {
 		}
 		try {
 			stmt = conn.createStatement();
-
-			rs = stmt.executeQuery(
+			rs1 = stmt.executeQuery(
 					"SELECT * FROM items WHERE items.UserID ='" + userID + "' AND items.ItemType ='" + itemType + "'");
-			while (rs.next()) {
+			while (rs1.next()) {
 				JSONObject item = new JSONObject();
-				item.put("itemID", rs.getString("ItemID"));
-				item.put("itemName", rs.getString("ItemName"));
-				item.put("itemPrice", rs.getInt("ItemPrice"));
-				item.put("imgMeal", rs.getString("ImgMeal"));
+				item.put("itemID", rs1.getString("ItemID"));
+				item.put("itemName", rs1.getString("ItemName"));
+				item.put("itemPrice", rs1.getInt("ItemPrice"));
+				item.put("imgMeal", rs1.getString("ImgMeal"));
 				itemsDetails.add(item);
 
 			}
@@ -3386,7 +3401,9 @@ public class DataBase {
 	/**
 	 * getInactiveCustomer
 	 * 
-	 * This method builds JSONArray with customers that defined with status null in DB.
+	 * This method builds JSONArray with customers that defined with status null in
+	 * DB.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "customers" : JSONArray with customers
 	 * @author Roman Milman
@@ -3430,7 +3447,9 @@ public class DataBase {
 	/**
 	 * getInactiveSupplier
 	 * 
-	 * This method builds JSONArray with unregistered suppliers by given branch as input.
+	 * This method builds JSONArray with unregistered suppliers by given branch as
+	 * input.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "suppliers" : JSONArray with suppliers
 	 * @author Roman Milman
@@ -3476,7 +3495,9 @@ public class DataBase {
 	/**
 	 * getAllCustomersByBranch
 	 * 
-	 * This method builds JSONArray with all customers by given branch as input; except status is null.
+	 * This method builds JSONArray with all customers by given branch as input;
+	 * except status is null.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "customers" : JSONArray with customers
 	 * @author Roman Milman
@@ -3523,11 +3544,14 @@ public class DataBase {
 	/**
 	 * switchRoleToBusinessCustomer
 	 * 
-	 * This method switches customers role to 'Business Customer', handles all the necessary changes in the Tables.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param int employerUserID.
+	 * This method switches customers role to 'Business Customer', handles all the
+	 * necessary changes in the Tables. This method updates both Tables, if any
+	 * fails rollback's.
+	 * 
+	 * @param int        employerUserID.
 	 * @param JSONObject json - includes: 'id'.
-	 * @return JSONObject - "update" : "customer role has been switched" if succeed, otherwise "could not switch customer role", 'id' : same as input.
+	 * @return JSONObject - "update" : "customer role has been switched" if succeed,
+	 *         otherwise "could not switch customer role", 'id' : same as input.
 	 * @author Roman Milman
 	 */
 	public JSONObject switchRoleToBusinessCustomer(JSONObject json, int employerUserID) {
@@ -3611,10 +3635,13 @@ public class DataBase {
 	/**
 	 * switchRoleToRegularCustomer
 	 * 
-	 * This method switches customers role to 'Customer', handles all the necessary changes in the Tables.
-	 * This method updates both Tables, if any fails rollback's.
+	 * This method switches customers role to 'Customer', handles all the necessary
+	 * changes in the Tables. This method updates both Tables, if any fails
+	 * rollback's.
+	 * 
 	 * @param JSONObject json - includes: 'id'.
-	 * @return JSONObject - "update" : "customer role has been switched" if succeed, otherwise "could not switch customer role", 'id' : same as input.
+	 * @return JSONObject - "update" : "customer role has been switched" if succeed,
+	 *         otherwise "could not switch customer role", 'id' : same as input.
 	 * @author Roman Milman
 	 */
 	public JSONObject switchRoleToRegularCustomer(JSONObject json) {
@@ -3859,10 +3886,13 @@ public class DataBase {
 	/**
 	 * getAllUsersByBranch
 	 * 
-	 * This method builds customers JSONArray, employers JSONArray, hrs JSONArray, suppliers JSONArray.
+	 * This method builds customers JSONArray, employers JSONArray, hrs JSONArray,
+	 * suppliers JSONArray.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
-	 * @return JSONObject - "customers" : customers JSONArray, "employers" : employers JSONArray, "hrs" : hrs JSONArray, "suppliers" : suppliers JSONArray.
-	 * returns null if any query faild.
+	 * @return JSONObject - "customers" : customers JSONArray, "employers" :
+	 *         employers JSONArray, "hrs" : hrs JSONArray, "suppliers" : suppliers
+	 *         JSONArray. returns null if any query faild.
 	 * @author Roman Milman
 	 */
 	public JSONObject getAllUsersByBranch(JSONObject json) {
@@ -3899,9 +3929,11 @@ public class DataBase {
 	/**
 	 * getCustomersForGetAllUsersByBranch
 	 * 
-	 * This method builds customers JSONArray with all customers that are registered in DB.
+	 * This method builds customers JSONArray with all customers that are registered
+	 * in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "customers" 
+	 * @return JSONArray - "customers"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -3932,9 +3964,11 @@ public class DataBase {
 	/**
 	 * getEmployersForGetAllUsersByBranch
 	 * 
-	 * This method builds employers JSONArray with all employers that are registered in DB.
+	 * This method builds employers JSONArray with all employers that are registered
+	 * in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "employers" 
+	 * @return JSONArray - "employers"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -3965,8 +3999,9 @@ public class DataBase {
 	 * getHrsForGetAllUsersByBranch
 	 * 
 	 * This method builds hrs JSONArray with all hrs that are registered in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "hrs" 
+	 * @return JSONArray - "hrs"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -3997,9 +4032,11 @@ public class DataBase {
 	/**
 	 * getSuppliersForGetAllUsersByBranch
 	 * 
-	 * This method builds suppliers JSONArray with all suppliers that are registered in DB.
+	 * This method builds suppliers JSONArray with all suppliers that are registered
+	 * in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "suppliers" 
+	 * @return JSONArray - "suppliers"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -4030,9 +4067,11 @@ public class DataBase {
 	 * switchStatusToCustomer
 	 * 
 	 * This method updates customers status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name','username'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToCustomer(JSONObject json, String newStatus) {
@@ -4070,9 +4109,11 @@ public class DataBase {
 	 * switchStatusToEmployer
 	 * 
 	 * This method updates employers status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToEmployer(JSONObject json, String newStatus) {
@@ -4109,9 +4150,11 @@ public class DataBase {
 	 * switchStatusToHR
 	 * 
 	 * This method updates HR status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name','username'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToHR(JSONObject json, String newStatus) {
@@ -4149,9 +4192,11 @@ public class DataBase {
 	 * switchStatusToSupplier
 	 * 
 	 * This method updates supplier status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToSupplier(JSONObject json, String newStatus) {

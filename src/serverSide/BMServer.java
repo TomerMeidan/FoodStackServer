@@ -14,7 +14,7 @@ public class BMServer extends Application {
 	final public static String DEFAULT_USER = "root";
 
 
-	final public static String DEFAULT_PASSWORD = "1937258asdf";
+	final public static String DEFAULT_PASSWORD = "Dan11111";
 
 	
 	private static DataBase db = new DataBase();
