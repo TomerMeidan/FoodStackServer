@@ -11,6 +11,17 @@ import common.Logger.Level;
 import ocsf.server.ConnectionToClient;
 import serverSide.DataBase;
 
+/**
+ * HRPortalViewController
+ * 
+ * This class is the Controller based on ECB pattern.
+ * This class controls HR events.
+ * This class holds db, com, connection, ID variables.
+ * ComController com - for handling communication.
+ * ConnectionToClient connection - for sending messages.
+ * String ID - is the userid in db, used for identifying user.
+ * @author Roman Milman
+ */
 public class HRPortalViewController implements PortalViewController {
 
 	private DataBase db;
@@ -18,34 +29,74 @@ public class HRPortalViewController implements PortalViewController {
 	private ConnectionToClient connection;
 	private String ID;
 
+	/**
+	 * HRPortalViewController constructor
+	 * 
+	 * @param DataBase db
+	 * @param ComController com
+	 * @param ConnectionToClient connection
+	 * @author Roman Milman
+	 */
 	public HRPortalViewController(DataBase db, ComController com, ConnectionToClient connection) {
 		this.db = db;
 		this.com = com;
 		this.connection = connection;
 	}
 
+	/**
+	 * start
+	 * 
+	 * No use, for future flexibility.
+	 * @author Roman Milman
+	 */
 	@Override
 	public void start() {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * start
+	 * 
+	 * No use, for future flexibility.
+	 * @author Roman Milman
+	 */
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
 	}
 	
+	/**
+	 * getID
+	 * 
+	 * returns ID.
+	 * @return String
+	 * @author Roman Milman
+	 */
 	@Override
 	public String getID() {
 		return ID;
 	}
 
+	/**
+	 * setID
+	 * 
+	 * sets ID.
+	 * @author Roman Milman
+	 */
 	@Override
 	public void setID(String ID) {
 		this.ID = ID;
 	}
 
+	/**
+	 * handleCommandFromClient
+	 * 
+	 * handles commands from client
+	 * @param JSONObject msg - contains 'command' key for identifying which event occurred
+	 * @author Roman Milman
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void handleCommandFromClient(JSONObject json) {
@@ -59,16 +110,16 @@ public class HRPortalViewController implements PortalViewController {
 			handleLogout(json);
 			break;
 		case "approve business client was pressed":
-			handleEventApproveBusiness(json);
+			handleEventApproveBusinessCustomers(json);
 			break;
 		case "approve was pressed":
-			handleApprove(json);
+			handleApproveBusinessCustomer(json);
 			break;
 		case "register employer was pressed":
 			handleEventRegisterEmployer();
 			break;
 		case "supplier register was pressed":
-			handleEventSupplierRegister(json);
+			handleEmployerRegister(json);
 			break;
 
 		default:
@@ -78,8 +129,15 @@ public class HRPortalViewController implements PortalViewController {
 		}
 	}
 
+	/**
+	 * handleEmployerRegister
+	 * 
+	 * handles register employer commands from client
+	 * @param JSONObject msg.
+	 * @author Roman Milman
+	 */
 	@SuppressWarnings("unchecked")
-	private void handleEventSupplierRegister(JSONObject json) {
+	private void handleEmployerRegister(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response = db.registerEmployer(json);
 		response.put("command", "update");
@@ -93,6 +151,12 @@ public class HRPortalViewController implements PortalViewController {
 		}
 	}
 
+	/**
+	 * handleEventRegisterEmployer
+	 * 
+	 * handles event employer registration
+	 * @author Roman Milman
+	 */
 	@SuppressWarnings("unchecked")
 	private void handleEventRegisterEmployer() {
 		JSONObject response = new JSONObject();
@@ -109,7 +173,14 @@ public class HRPortalViewController implements PortalViewController {
 		}
 	}
 
-	private void handleApprove(JSONObject json) {
+	/**
+	 * handleApproveBusinessCustomer
+	 * 
+	 * handles approve business customer command
+	 * @param JSONObject msg.
+	 * @author Roman Milman
+	 */
+	private void handleApproveBusinessCustomer(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response = db.activeCustomer(json);
 		try {
@@ -120,8 +191,15 @@ public class HRPortalViewController implements PortalViewController {
 		}
 	}
 
+	/**
+	 * handleEventApproveBusinessCustomers
+	 * 
+	 * handles event approve business customer
+	 * @param JSONObject msg.
+	 * @author Roman Milman
+	 */
 	@SuppressWarnings("unchecked")
-	private void handleEventApproveBusiness(JSONObject json) {
+	private void handleEventApproveBusinessCustomers(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response = db.getInactiveBusinessCustomers(json);
 		response.put("command", "update");
@@ -134,6 +212,13 @@ public class HRPortalViewController implements PortalViewController {
 		}
 	}
 
+	/**
+	 * handleLogout
+	 * 
+	 * handles logout command
+	 * @param JSONObject msg.
+	 * @author Roman Milman
+	 */
 	@SuppressWarnings("unchecked")
 	private void handleLogout(JSONObject msg) {
 		JSONObject response = new JSONObject();

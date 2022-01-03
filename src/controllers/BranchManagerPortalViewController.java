@@ -96,7 +96,7 @@ public class BranchManagerPortalViewController implements PortalViewController {
 	 * handleCommandFromClient
 	 * 
 	 * handles commands from client
-	 * @param JSONObject msg - contains 'command' key for identifying which event occured
+	 * @param JSONObject msg - contains 'command' key for identifying which event occurred
 	 * @author Roman Milman
 	 */
 	@SuppressWarnings("unchecked")
