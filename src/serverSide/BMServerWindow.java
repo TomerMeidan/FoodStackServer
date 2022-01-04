@@ -1,6 +1,9 @@
 package serverSide;
 
 
+import common.Logger;
+import common.Logger.Level;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +14,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -59,6 +63,7 @@ public class BMServerWindow {
 	    	BMServer.runServer(port);
 	    	connectBtn.disableProperty().set(true);
 	    	disconnectBtn.disableProperty().set(false);
+	    	importButton.setDisable(false);
 	    	}
 
 	    @FXML
@@ -80,6 +85,9 @@ public class BMServerWindow {
 	    	importButton.disableProperty().set(true);
 	    	db.importUsers();
 	    	periodicSrvc.start();
+	    	importButton.setDisable(true);
+	    	txtPort.setDisable(true);
+	    	txtUser.setDisable(true);
 	    }
 	    
 
