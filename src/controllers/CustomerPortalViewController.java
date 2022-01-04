@@ -35,11 +35,13 @@ public class CustomerPortalViewController implements PortalViewController {
 		// TODO Auto-generated method stub
 
 	}
+
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
 	}
+
 	@Override
 	public void handleCommandFromClient(JSONObject json) {
 		switch (Message.getValueString(json, "command")) {
@@ -114,12 +116,11 @@ public class CustomerPortalViewController implements PortalViewController {
 		msgForClient.put("command", "update");
 		order.put("userID", userID);
 		boolean fail = false;
-		if (db.zeroBusinessCustomerBalance(userID)) {
-			if (db.saveOrderDetailsInDatabase(order))
-				msgForClient.put("update", "Order was successfuly added");
-			else fail = true;
-			}
-		if(fail){
+		if (db.zeroBusinessCustomerBalance(order))
+			msgForClient.put("update", "Order was successfuly added");
+		else
+			fail = true;
+		if (fail) {
 			msgForClient.put("update", "Show pop up: failed order");
 			msgForClient.put("reason", "Error in system");
 		}

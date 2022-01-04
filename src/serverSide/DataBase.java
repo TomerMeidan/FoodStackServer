@@ -463,18 +463,21 @@ public class DataBase {
 		return true;
 	}
 	
-	/**ONLY USED BEFORE DIRECTLY CALLING saveOrderDetailsInDatabase in controller
-	 * Change the business customer's balance to 0
-	 * @param userID
-	 * @return
+	/**ONLY USED AFTER CUSTOMER CLICKS YES (paying with customer balance and credit)
+	 * Change the business customer's balance to 0 (because not enough in balance) and save order into database
+	 * @param order
+	 * @return true if success, else false
 	 */
-	public boolean zeroBusinessCustomerBalance(String userID) {
+	public boolean zeroBusinessCustomerBalance(JSONObject order) {
+		String userID = Message.getValueString(order, "userID");
 		try {
-			conn.setAutoCommit(false); //the reason why this method can't be used alone
+			conn.setAutoCommit(false);
 			PreparedStatement preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
 			preStmt.setInt(1, 0);
 			preStmt.setString(2, userID);
 			preStmt.executeUpdate();
+			if(!saveOrderDetailsInDatabase(order))
+				return false;
 		} catch (SQLException e) {
 			try {
 				conn.rollback();
@@ -3314,8 +3317,6 @@ public class DataBase {
 		JSONArray orders = new JSONArray();
 		try {
 			Statement stmt = conn.createStatement();
-			System.out.println("SELECT * FROM bitemedb.orders WHERE UserID = " + userID
-					+ " AND (Status = 'Waiting for approval' OR Status = 'Ready')");
 			ResultSet rs = stmt.executeQuery("SELECT * FROM bitemedb.orders WHERE UserID = " + userID
 					+ " AND (Status = 'Waiting for approval' OR Status = 'Ready')");
 			while (rs.next()) {
@@ -3416,14 +3417,13 @@ public class DataBase {
 		String deliverDate = Message.getValueString(json, "deliverDate");
 		JSONObject response = new JSONObject();
 		try {
+			checkIfEligibleForRefund(json);
 			PreparedStatement preStmt = conn
 					.prepareStatement("UPDATE orders SET DeliverDate = ? , Status = ? WHERE OrderID = ?");
 			preStmt.setString(1, deliverDate);
 			preStmt.setString(2, "Delivered");
 			preStmt.setInt(3, orderID);
 			preStmt.executeUpdate();
-			checkIfEligibleForRefund(json);
-
 		} catch (SQLException e) {
 			System.out.println(e);
 			System.out.println("DATABASE: SQLException in updateOrderRecieved");
