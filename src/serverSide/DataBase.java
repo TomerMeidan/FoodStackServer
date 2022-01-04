@@ -86,7 +86,7 @@ public class DataBase {
 		// log
 		Logger.log(Level.DEBUG, "DataBase : SQL connection succeed");
 		System.out.println("DataBase : SQL connection succeed");
-		importUsers();
+		//importUsers();
 	}
 
 	public void importUsers() {

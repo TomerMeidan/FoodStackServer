@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="214.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="serverSide.BMServerWindow">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="214.0" prefWidth="504.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="serverSide.BMServerWindow">
    <children>
       <VBox fx:id="pathVBox" prefHeight="638.0" prefWidth="233.0" style="-fx-background-color: #D93B48;">
          <children>
@@ -61,7 +61,7 @@
             </Label>
             <CheckBox fx:id="defaultCB" layoutX="38.0" layoutY="175.0" mnemonicParsing="false" onAction="#onCBClick" text="Autofill" />
             <PasswordField fx:id="txtPassword" layoutX="116.0" layoutY="98.0" />
-            <Button fx:id="importButton" layoutX="289.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickImportButton" text="Import" />
+            <Button fx:id="importButton" disable="true" layoutX="289.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickImportButton" text="Import" />
          </children>
       </Pane>
    </children>
