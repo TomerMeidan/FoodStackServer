@@ -78,7 +78,6 @@ public class Menu {
 				imgType.put("imgType", rs.getString("ImgType"));
 				arrayForType.add(imgType);
 				itemType.put(rs.getString("ItemType"), arrayForType);
-				System.out.println(itemType);
 				itemTypesArray.add(itemType);
 			}
 		} catch (SQLException e) {
@@ -106,7 +105,6 @@ public class Menu {
 				item.put("mealPrice", rs.getString("ItemPrice"));
 				item.put("mealID", rs.getString("ItemID"));
 				item.put("imgMeal", rs.getString("imgMeal"));
-				System.out.println(Message.getValueString(item, restaurantName));
 				itemsArray.add(item);
 			}		
 		} catch (SQLException e) {
