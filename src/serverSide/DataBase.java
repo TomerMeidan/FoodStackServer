@@ -37,6 +37,14 @@ import util.MustFeature;
 import util.OptionalFeature;
 import util.Order;
 
+/**
+ * DataBase
+ * 
+ * This class is the Database controller. This class holds a Connection to MySQL
+ * database server. This class has password and user variables to connect.
+ * 
+ * @author Roman Milman
+ */
 @SuppressWarnings("unchecked")
 public class DataBase {
 
@@ -45,6 +53,13 @@ public class DataBase {
 	private String password;
 	private String user;
 
+	/**
+	 * start
+	 * 
+	 * This method starts the connection to MySQL database server.
+	 * 
+	 * @author Roman Milman
+	 */
 	public void start() throws SQLException {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -78,6 +93,17 @@ public class DataBase {
 		new DBImport(conn, connImport).importAll();
 	}
 
+	/**
+	 * validateUser
+	 * 
+	 * This method validates user information. This method checks if username and
+	 * password given as input are correct.
+	 * 
+	 * @param JSONObject json - includes 'username' and 'password' keys as users
+	 *                   values accordingly.
+	 * @return JSONObject
+	 * @author Roman Milman
+	 */
 	public JSONObject validateUser(JSONObject json) {
 		ResultSet rs;
 		String username = Message.getValueString(json, "username");
@@ -871,6 +897,15 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * getEmployerForHr
+	 * 
+	 * This method builds JSONArray of employers that this is their HR.
+	 * 
+	 * @param String userID.
+	 * @return JSONObject - "employers" : JSONArray of employers info.
+	 * @author Roman Milman
+	 */
 	public JSONObject getEmployerForHr(String userID) {
 		ResultSet rs;
 		JSONObject response = new JSONObject();
@@ -2052,13 +2087,15 @@ public class DataBase {
 	}
 
 	/**
-	 * Get the all data of restaurant from DB, include items and features Saving the
-	 * data in "HashMap"
+	 * getMenu
 	 * 
-	 * @param ID of the supplier
-	 * @return json for client
+	 * This method take the items from specific restaurant's menu. The data was
+	 * taken from items, mustfeatures and optional features tables.
+	 * 
+	 * @param String userID - id of the supplier
+	 * @return returns a JSONObject object to the client side with key of hash map
+	 *         that present the menu.
 	 */
-
 	public JSONObject getMenu(String userID) {
 		JSONObject response = new JSONObject();
 		HashMap<String, JSONArray> menu = new HashMap<>();
@@ -2129,13 +2166,18 @@ public class DataBase {
 	}
 
 	/**
-	 * Check input of the type text field
+	 * checkType
 	 * 
-	 * @param json that get from client, json that send to client and key for
-	 *             "edit"/"add" and "type" features
-	 * @return true if incorrect value, else return
+	 * This method checks the input of edit/add type. This method checks if type
+	 * name include only letters and space, length no more then 10 and exist type.
+	 * 
+	 * @param JSONObject json - includes: 'itemType','nameType','userID'(of
+	 *                   supplier), JSONObject response - include returns value and
+	 *                   is a parameter for ass relevant feedback if the test
+	 *                   failed, String key- sign if check edit/add options.
+	 * 
+	 * @return boolean - true if type is incorrect.
 	 */
-
 	private boolean checkType(JSONObject json, JSONObject response, String key) {
 		String itemType = "";
 		if (key.equals("edit"))
@@ -2185,12 +2227,16 @@ public class DataBase {
 	}
 
 	/**
-	 * update type item in DB according the data from client
+	 * editType
 	 * 
-	 * @param json that get from client
-	 * @return json for client
+	 * This method replace type meal details of restaurant menu in database. First
+	 * the method takes data from items table and then replace the relevant fields.
+	 * 
+	 * @param JSONObject json - includes: 'imgType','itemType',
+	 *                   'nameType','userID'(of supplier).
+	 * @return returns a JSONObject object to the client side with relevant data of
+	 *         edited type.
 	 */
-
 	public JSONObject editType(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
@@ -2198,7 +2244,7 @@ public class DataBase {
 		String imgType = Message.getValueString(json, "imgType");
 		Statement stmt;
 		PreparedStatement stmtP;
-		ResultSet rs;
+		ResultSet rs1;
 		ArrayList<JSONObject> itemsDetails = new ArrayList<>();
 		String userID = Message.getValueString(json, "userID");
 		String itemType = Message.getValueString(json, "itemType");
@@ -2212,15 +2258,14 @@ public class DataBase {
 		}
 		try {
 			stmt = conn.createStatement();
-
-			rs = stmt.executeQuery(
+			rs1 = stmt.executeQuery(
 					"SELECT * FROM items WHERE items.UserID ='" + userID + "' AND items.ItemType ='" + itemType + "'");
-			while (rs.next()) {
+			while (rs1.next()) {
 				JSONObject item = new JSONObject();
-				item.put("itemID", rs.getString("ItemID"));
-				item.put("itemName", rs.getString("ItemName"));
-				item.put("itemPrice", rs.getInt("ItemPrice"));
-				item.put("imgMeal", rs.getString("ImgMeal"));
+				item.put("itemID", rs1.getString("ItemID"));
+				item.put("itemName", rs1.getString("ItemName"));
+				item.put("itemPrice", rs1.getInt("ItemPrice"));
+				item.put("imgMeal", rs1.getString("ImgMeal"));
 				itemsDetails.add(item);
 
 			}
@@ -2251,10 +2296,14 @@ public class DataBase {
 	}
 
 	/**
-	 * add type item in DB according the data from client
+	 * addType
 	 * 
-	 * @param json that get from client
-	 * @return json for client
+	 * This method insert type meal details of restaurant menu in database.
+	 * 
+	 * @param JSONObject json - includes: 'imgType','nameType','userID'(of
+	 *                   supplier).
+	 * @return returns a JSONObject object to the client side with relevant data of
+	 *         new type.
 	 */
 	public JSONObject addType(JSONObject json) {
 		JSONObject response = new JSONObject();
@@ -2294,10 +2343,14 @@ public class DataBase {
 	}
 
 	/**
-	 * delete type item from DB
+	 * deleteType
 	 * 
-	 * @param json that get from client
-	 * @return json for client
+	 * This method delete type meal of restaurant menu in database. First get the
+	 * fields of meals that belong to this type.
+	 * 
+	 * @param JSONObject json - includes: 'itemType','userID'(of supplier).
+	 * @return returns a JSONObject object to the client side with relevant data of
+	 *         deleted type.
 	 */
 	public JSONObject deleteType(JSONObject json) {
 		JSONObject response = new JSONObject();
@@ -2332,23 +2385,7 @@ public class DataBase {
 			conn.commit();
 		} catch (Exception e) {
 			Logger.log(Level.WARNING, "DATABASE: SQLException in deleteType");
-//			try {
-//				conn.rollback();
-//			} catch (SQLException e1) {
-//				Logger.log(Level.WARNING, "DATABASE: SQLException in deleteType, rollback");
-//				System.out.println("DATABASE: SQLException in deleteType, rollback");
-//			}
-
 		}
-
-//		try {
-//			conn.commit();
-//		} catch (SQLException e) {
-//			Logger.log(Level.WARNING, "DATABASE: SQLException in deleteType, commit");
-//			System.out.println("DATABASE: SQLException in deleteType, commit");
-//			
-//		}
-
 		Logger.log(Level.DEBUG, "DATABASE: delete (" + nameType + ") type is approved");
 		System.out.println("DATABASE: user delete (" + nameType + ") type is approved");
 
@@ -2358,6 +2395,15 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * checkLetter
+	 * 
+	 * This method checks word input. This method checks if name include only
+	 * letters and space.
+	 * 
+	 * @param String word - the input check
+	 * @return boolean - true if the input is correct
+	 */
 	public boolean checkLetter(String word) {
 		String[] forCheck = word.split(" ");
 		for (int i = 0; i < forCheck.length; i++)
@@ -2367,13 +2413,19 @@ public class DataBase {
 	}
 
 	/**
-	 * Check input of the meal text field and price text field
+	 * checkMeals
 	 * 
-	 * @param json that get from client, json that send to client and key for
-	 *             "edit"/"add"
-	 * @return true if incorrect value, else return
+	 * This method checks the input of edit/add meals. This method checks if meal
+	 * name include only letters and space, length no more then 10, exist meal,
+	 * price include only digits.
+	 * 
+	 * @param JSONObject json - includes: 'itemType','nameType','userID'(of
+	 *                   supplier), JSONObject response - is return value and is a
+	 *                   parameter for relevant feedback if the test failed, String
+	 *                   key- sign if check edit/add options.
+	 * 
+	 * @return boolean - true if type is incorrect.
 	 */
-
 	private boolean checkMeals(JSONObject json, JSONObject response, String key) {
 
 		String newDishName = Message.getValueString(json, "newDishName");
@@ -2424,12 +2476,18 @@ public class DataBase {
 	}
 
 	/**
-	 * add/edit features to the DB
+	 * saveFeatures
 	 * 
-	 * @param json that get from client, json that send to client. feedback message
-	 *             and key for "edit"/"add"
+	 * This method edit/add must and optional features. The method
+	 * update/delete/insert optionalfetures and mustfeatures tables.
+	 * 
+	 * @param JSONObject json - 'optionalEdit'/'mustEdit'(JSONArray of features that
+	 *                   designed to be edited), 'optionalFeat'/'mustEdit' (HashMap
+	 *                   of features that designed to be added),JSONObject response
+	 *                   - is return value and is a parameter for relevant feedback
+	 *                   if the test, String feedback - parameter to which add a
+	 *                   feedback, String key - edit/add, String itID -itemID failed
 	 */
-
 	private void saveFeatures(JSONObject json, JSONObject response, String feedback, String key, String itID) {
 		JSONArray optionalEdit = null;
 		JSONArray mustEdit = null;
@@ -2571,12 +2629,17 @@ public class DataBase {
 	}
 
 	/**
-	 * edit type to item and features in DB according the data from client
+	 * saveEditDish
 	 * 
-	 * @param json that get from client
-	 * @return json for client
+	 * This method update meal details of restaurant menu in database. First the
+	 * method call to checkMeals for input check.
+	 * 
+	 * @param JSONObject json - includes: 'dishName','itemType',
+	 *                   'newDishName','userID'(of supplier),
+	 *                   'imgMeal','newDishPrice', 'itemID' .
+	 * @return returns a JSONObject object to the client side with relevant data of
+	 *         edit meal.
 	 */
-
 	public JSONObject saveEditDish(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
@@ -2628,10 +2691,17 @@ public class DataBase {
 	}
 
 	/**
-	 * add type to item and features in DB according the data from client
+	 * saveAddDish
 	 * 
-	 * @param json that get from client
-	 * @return json for client
+	 * This method add new meal details of restaurant menu in database. First the
+	 * method call to checkMeals for input check. Second the method check if this is
+	 * the first meal on his type.
+	 * 
+	 * @param JSONObject json - includes: 'imgMeal','itemType',
+	 *                   'newDishName','userID'(of supplier),
+	 *                   'imgMeal','newDishPrice', 'itemID' .
+	 * @return returns a JSONObject object to the client side with relevant data of
+	 *         add meal.
 	 */
 	public JSONObject saveAddDish(JSONObject json) {
 		JSONObject response = new JSONObject();
@@ -2701,7 +2771,6 @@ public class DataBase {
 
 			String feedback = "Meal added ";
 			response.put("feedback", feedback);
-			// System.out.println(rs.getString("ItemID"));
 			saveFeatures(json, response, feedback, "add", itemID);
 			conn.commit();
 		} catch (Exception e) {
@@ -2718,12 +2787,16 @@ public class DataBase {
 	}
 
 	/**
-	 * delete dish from DB - items and features tables
+	 * deleteDish
 	 * 
-	 * @param json that get from client
-	 * @return json for client
+	 * This method delete meal of restaurant menu in database. First check if this
+	 * meal is single of his type.
+	 * 
+	 * @param JSONObject json - includes: 'itemType','userID'(of
+	 *                   supplier),'itemID','itemName'.
+	 * @return returns a JSONObject object to the client side with relevant data of
+	 *         deleted meal.
 	 */
-
 	public JSONObject deleteDish(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
@@ -2772,40 +2845,32 @@ public class DataBase {
 			conn.commit();
 		} catch (Exception e) {
 			Logger.log(Level.WARNING, "DATABASE: SQLException in approveUser");
-//			try {
-//			conn.rollback();
-//		} catch (SQLException e1) {
-//			Logger.log(Level.WARNING, "DATABASE: SQLException in deleteType, rollback");
-//			System.out.println("DATABASE: SQLException in deleteType, rollback");
-//		}
-
 		}
-
-//		try {
-//		conn.commit();
-//	} catch (SQLException e) {
-//		Logger.log(Level.WARNING, "DATABASE: SQLException in deleteType, commit");
-//		System.out.println("DATABASE: SQLException in deleteType, commit");
-//		
-//	}
-
 		Logger.log(Level.DEBUG, "DATABASE: delete (" + itemName + ") dish is approved");
 		System.out.println("DATABASE: user delete (" + itemName + ") dish is approved");
-
-		// update menu
 
 		response.put("menu", getMenu(userID));
 		response.put("itemType", itemType);
 		response.put("feedback", itemName + " deleted");
 		return response;
+
 	}
 
-	public HashMap<String, HashMap<String, JSONObject>> Group(HashMap<String, JSONObject> oreders) {
+	/**
+	 * ordersByHour
+	 * 
+	 * This method put order in hash map according to the key - hours. The method
+	 * put the orders that will receive on this day.
+	 * 
+	 * @param HashMap<String, JSONObject> oreders - list of all orders.
+	 * @return returns a HashMap<String, HashMap<String, JSONObject>> object to the
+	 *         client side with today's orders that arranged by hours.
+	 */
+	public HashMap<String, HashMap<String, JSONObject>> ordersByHour(HashMap<String, JSONObject> oreders) {
 
 		HashMap<String, HashMap<String, JSONObject>> orderByGroup = new HashMap<>();
 		for (String i : oreders.keySet()) {
 			JSONObject order = oreders.get(i);
-			// String employerID = Message.getValue(order, "employerID");
 			String date = Message.getValueString(order, "recieveTime");
 
 			String[] recieveTime1 = date.split(" ");
@@ -2847,6 +2912,16 @@ public class DataBase {
 		return orderByGroup;
 	}
 
+	/**
+	 * getOrderList
+	 * 
+	 * This method put order in hash map according to the key - order ID. The method
+	 * put all of the order details on this hash map in JSONObject.
+	 * 
+	 * @param JSONObject json - includes:' supplierID'.
+	 * @return returns a JSONObject object to the client side with today's orders
+	 *         that arranged by hours(from ordersByHour method) and restaurant name.
+	 */
 	public JSONObject getOrderList(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
@@ -2931,12 +3006,23 @@ public class DataBase {
 			Logger.log(Level.WARNING, "DATABASE: SQLException in approveUser");
 		}
 
-		HashMap<String, HashMap<String, JSONObject>> orderByGroup = Group(orders);
+		HashMap<String, HashMap<String, JSONObject>> orderByGroup = ordersByHour(orders);
 		response.put("orders", orderByGroup);
 
 		return response;
 	}
 
+	/**
+	 * approveOrder
+	 * 
+	 * This method update status field in orders table. Also, the method check if
+	 * the approval orders includes in co-delivery.
+	 * 
+	 * @param JSONObject json - includes:' ordersPerHour'(orders that waiting to be
+	 *                   approval),'approveTime','approvalNum', 'restaurantName'. .
+	 * @return returns a JSONObject object to the client side with updated order
+	 *         list, restaurant name and approvalOrders - connect details of users.
+	 */
 	public JSONObject approveOrder(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
@@ -2994,30 +3080,15 @@ public class DataBase {
 		return response;
 	}
 
-//	public JSONObject buildMail(JSONObject json) {
-//		JSONObject response = new JSONObject();
-//		response.put("command", "update");
-//		response.put("update", "mailDetails");
-//		response.put("restaurantName", Message.getValueString(json, "restaurantName"));
-//		response.put("orderID", Message.getValueString(json, "orderID"));
-//		String clientID = Message.getValueString(json, "clientID");
-//		Statement stmt;
-//		ResultSet rs;
-//		try {
-//			stmt = conn.createStatement();
-//
-//			rs = stmt.executeQuery("SELECT * FROM customers WHERE UserID ='" + clientID + "'");
-//			rs.next();
-//			response.put("phone", rs.getString("PhoneNumber"));
-//			response.put("email", rs.getString("Email"));
-//
-//		} catch (Exception e) {
-//			Logger.log(Level.WARNING, "DATABASE: SQLException in approveUser");
-//		}
-//
-//		return response;
-//	}
-
+	/**
+	 * getReceiptList
+	 * 
+	 * The method gets all price of order list for this month from specific
+	 * restaurant. The method calculate the price after 7% fee.
+	 * 
+	 * @param JSONObject json - includes:' supplierID'.
+	 * @return returns a JSONObject object to the client side with receipts list.
+	 */
 	public JSONObject getReceiptList(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
@@ -3104,6 +3175,16 @@ public class DataBase {
 		return false;
 	}
 
+	/**
+	 * getInactiveBusinessCustomers
+	 * 
+	 * This method builds JSONArray with 'inactive' business customers by employerID
+	 * given as input.
+	 * 
+	 * @param JSONObject json - includes "employerID" key for employerID id value.
+	 * @return JSONObject - "customers" : JSONArray with customer info.
+	 * @author Roman Milman
+	 */
 	public JSONObject getInactiveBusinessCustomers(JSONObject json) {
 		ResultSet rs;
 		int employerID = Integer.valueOf(Message.getValueString(json, "employerID"));
@@ -3142,6 +3223,17 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * activeCustomer
+	 * 
+	 * This method updates customers table with status 'active' by given id as
+	 * input.
+	 * 
+	 * @param JSONObject json - includes "id" key for customers id value.
+	 * @return JSONObject - "update" : "customer has been activated" if succeeded,
+	 *         otherwise returns null.
+	 * @author Roman Milman
+	 */
 	public JSONObject activeCustomer(JSONObject json) {
 		String id = Message.getValueString(json, "id");
 		JSONObject response = new JSONObject();
@@ -3166,6 +3258,18 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * registerEmployer
+	 * 
+	 * This method updates employer in database as 'inactive' and sets w4c, balance
+	 * columns. This method sets 'balance' and 'w4c' as given in input.
+	 * 
+	 * @param JSONObject json - includes: 'employer name','balance','w4c' keys for
+	 *                   employer accordingly values.
+	 * @return JSONObject - "update" : "employer has been registered" if succeed,
+	 *         otherwise "could not registered employer"
+	 * @author Roman Milman
+	 */
 	public JSONObject registerEmployer(JSONObject json) {
 		String employerName = Message.getValueString(json, "employer name");
 		JSONObject response = new JSONObject();
@@ -3776,6 +3880,20 @@ public class DataBase {
 		return response;
 	}
 
+	/**
+	 * checkAddFeature
+	 * 
+	 * This method checks the input of edit/add features. This method checks if
+	 * feature name include only letters and space, length no more then 15, exist
+	 * feature, price include only digits, price length no mor then 3 digits. Also
+	 * checks the count of features - must only 2 and optional only 3.
+	 * 
+	 * @param JSONObject json - includes: 'feature','price','key'(must/optional),
+	 *                   'delete'(indicate if will be deletion),'map'( hash map with
+	 *                   features), 'oldName'.
+	 * 
+	 * @return boolean - false if type is incorrect.
+	 */
 	private boolean checkAddFeature(JSONObject json, JSONObject response, String method) {
 
 		String feature = Message.getValueString(json, "feature");
@@ -3835,10 +3953,10 @@ public class DataBase {
 			return false;
 		}
 
-		else if (feature.length() > 8) {
+		else if (feature.length() > 15) {
 			Logger.log(Level.DEBUG, "DATABASE: add (" + feature + ") feature is NOT approved");
 			System.out.println("DATABASE: add (" + feature + ") feature is NOT approved");
-			response.put("feedback", "Only 8 letters!");
+			response.put("feedback", "Only 15 letters!");
 			response.put("feedOK", false);
 			return false;
 		} else if (price.length() > 3) {
@@ -3865,7 +3983,19 @@ public class DataBase {
 
 	}
 
-	public JSONObject saveFeature(JSONObject json) {
+	/**
+	 * immediateFeaturesCheck
+	 * 
+	 * This method checks the input of add features by call to checkAddFeature
+	 * method.
+	 * 
+	 * @param JSONObject json - includes: 'feature','price','key'(must/optional),
+	 *                   'delete'(indicate if will be deletion),'map'( hash map with
+	 *                   features), 'oldName'.
+	 * 
+	 * @return JSONObject response - include data from checkAddFeature method.
+	 */
+	public JSONObject immediateFeaturesCheck(JSONObject json) {
 		JSONObject response = new JSONObject();
 		response.put("command", "update");
 		response.put("update", "checkAddFeature");
@@ -3873,7 +4003,22 @@ public class DataBase {
 		return response;
 	}
 
-	public JSONObject saveEditFeature(JSONObject json) {
+	/**
+	 * immediateFeaturesEditCheck
+	 * 
+	 * This method checks the input of edit features by call to checkAddFeature
+	 * method.
+	 * 
+	 * @param JSONObject json - includes: 'feature','price','key'(must/optional),
+	 *                   'delete'(indicate if will be deletion),'map'( hash map with
+	 *                   features), 'oldName', 'editFeat'(JSONArray with feature
+	 *                   detail), 'forEditFeat'(JSONObject object that will
+	 *                   presented in return map)
+	 * 
+	 * @return JSONObject response - include data from checkAddFeature method and
+	 *         parameters from this method.
+	 */
+	public JSONObject immediateFeaturesEditCheck(JSONObject json) {
 		JSONObject response = new JSONObject();
 		JSONArray editFeat = (JSONArray) json.get("editFeat");
 		JSONObject forEditFeat = (JSONObject) json.get("forEditFeat");

@@ -11,6 +11,17 @@ import common.Parser;
 import common.Logger.Level;
 import common.Message;
 
+/**
+ * LoginPortalViewController
+ * 
+ * This class is the Controller based on ECB pattern.
+ * This class controls Login events.
+ * This class holds db, com, connection, ID variables.
+ * ComController com - for handling communication.
+ * ConnectionToClient connection - for sending messages.
+ * String ID - is the userid in db, this is initialized as null.
+ * @author Roman Milman
+ */
 public class LoginPortalViewController implements PortalViewController {
 
 	private DataBase db;
@@ -19,34 +30,74 @@ public class LoginPortalViewController implements PortalViewController {
 	private String portalType = "login";
 	private String ID;
 
+	/**
+	 * LoginPortalViewController constructor
+	 * 
+	 * @param DataBase db
+	 * @param ComController com
+	 * @param ConnectionToClient connection
+	 * @author Roman Milman
+	 */
 	public LoginPortalViewController(DataBase db, ComController com, ConnectionToClient connection) {
 		this.db = db;
 		this.com = com;
 		this.connection = connection;
 	}
 
+	/**
+	 * start
+	 * 
+	 * No use, for future flexibility.
+	 * @author Roman Milman
+	 */
 	@Override
 	public void start() {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * stop
+	 * 
+	 * No use, for future flexibility.
+	 * @author Roman Milman
+	 */
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 * getID
+	 * 
+	 * returns ID.
+	 * @return String
+	 * @author Roman Milman
+	 */
 	@Override
 	public String getID() {
 		return ID;
 	}
 
+	/**
+	 * setID
+	 * 
+	 * sets ID.
+	 * @author Roman Milman
+	 */
 	@Override
 	public void setID(String ID) {
 		this.ID = ID;
 	}
 
+	/**
+	 * handleCommandFromClient
+	 * 
+	 * handles commands from client
+	 * @param JSONObject msg - contains 'command' key for identifying which event occurred
+	 * @author Roman Milman
+	 */
 	@Override
 	public void handleCommandFromClient(JSONObject json) {
 
@@ -106,6 +157,14 @@ public class LoginPortalViewController implements PortalViewController {
 		}
 	}
 
+	/**
+	 * addRoleExtensions
+	 * 
+	 * This method adds extra information if needed to response.
+	 * @param JSONObject response
+	 * @return JSONObject
+	 * @author Roman Milman
+	 */
 	private JSONObject addRoleExtensions(JSONObject response) {
 
 			switch (Message.getValue(response, "portalType")) {
@@ -126,6 +185,15 @@ public class LoginPortalViewController implements PortalViewController {
 		return response;
 	}
 
+	/**
+	 * checkIsOnlyUser
+	 * 
+	 * This method checks if any other user logged in into wanted account by userID that given as input.
+	 * If someone else allready logged in, returns 'notOk' status.
+	 * @param JSONObject response - includes "userID" as key to userID value in DB.
+	 * @return JSONObject
+	 * @author Roman Milman
+	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject checkIsOnlyUser(JSONObject response) {
 		String id = Message.getValue(response, "userID");
@@ -140,6 +208,14 @@ public class LoginPortalViewController implements PortalViewController {
 		return response;
 	}
 
+	/**
+	 * removeID
+	 * 
+	 * This method deletes userID that defined at DB from response, in order to not leak sensitive information.
+	 * @param JSONObject response.
+	 * @return JSONObject
+	 * @author Roman Milman
+	 */
 	private JSONObject removeID(JSONObject response) {
 //		if (response.containsKey("userID"))
 //			response.remove("userID");
