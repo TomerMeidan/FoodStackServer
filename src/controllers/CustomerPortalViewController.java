@@ -116,15 +116,19 @@ public class CustomerPortalViewController implements PortalViewController {
 		msgForClient.put("command", "update");
 		order.put("userID", userID);
 		boolean fail = false;
-		if (db.zeroBusinessCustomerBalance(order))
-			msgForClient.put("update", "Order was successfuly added");
-		else
-			fail = true;
-		if (fail) {
-			msgForClient.put("update", "Show pop up: failed order");
-			msgForClient.put("reason", "Error in system");
-		}
 		try {
+			if (db.zeroBusinessCustomerBalance(order)) {
+				msgForClient.put("update", "Order was successfuly added");
+				ConnectionToClient supplierCon = com.findConnection(Message.getValueString(order, "supplierID"));
+				if (supplierCon != null)
+					supplierCon.sendToClient(Parser.encode(msgForClient));
+			}
+			else
+				fail = true;
+			if (fail) {
+				msgForClient.put("update", "Show pop up: failed order");
+				msgForClient.put("reason", "Error in system");
+			}
 			connection.sendToClient(Parser.encode(msgForClient));
 		} catch (IOException e) {
 			// log
@@ -299,10 +303,7 @@ public class CustomerPortalViewController implements PortalViewController {
 				if (supplierCon != null)
 					supplierCon.sendToClient(Parser.encode(msgForClient));
 			} else {
-
-				// msgForClient.put("command", "update");
 				msgForClient.put("update", "Show pop up: failed order");
-				// msgForClient.put("orderDetails", order);
 			}
 			connection.sendToClient(Parser.encode(msgForClient));
 		} catch (IOException e) {
