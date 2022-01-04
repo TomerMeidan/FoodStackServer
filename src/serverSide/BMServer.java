@@ -35,15 +35,30 @@ public class BMServer extends Application {
 		launch(args);
 
 		System.exit(0);
-	} // end main
+	} 
 
+	
+
+	/**
+	 * start
+	 * 
+	 * This method starts load the template of server
+	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
+	
 		BMServerWindow aFrame = new BMServerWindow();
 		aFrame.start(primaryStage);
 	}
 
+	/**
+	 * runServer
+	 * 
+	 * This method called when a client enter connects.
+	 * The method reset factory by called setFactory method of ComController.
+	 * This method starts listening to Port for clients by called method 'start' of ComController.
+	 * @param String p - port
+	 */
 	public static void runServer(String p) {
 		try {
 			com = new ComController(Integer.valueOf(p));
@@ -51,7 +66,6 @@ public class BMServer extends Application {
 
 			db.start();
 		} catch (SQLException e) {
-			// log
 			Logger.log(Level.DEBUG, "BMServer : SQLException was caught");
 			System.out.println("BMServer : SQLException was caught");
 
@@ -72,15 +86,31 @@ public class BMServer extends Application {
 		periodicSrvc.start();
 
 	}
-
+	/**
+	 * stopServer
+	 * 
+	 * Disconnect from the server.
+	 */
 	public static void stopServer() {
 		System.exit(1);
 	}
 
+	/**
+	 * sendPassword
+	 * 
+	 * Sends to DB controller user password
+	 * @param String password
+	 */
 	public static void sendPassword(String password) {
 		db.setPassword(password);
 	}
 
+	/**
+	 * sendUser
+	 * 
+	 * Sends to DB controller user details
+	 * @param String user
+	 */
 	public static void sendUser(String user) {
 		db.setUser(user);
 	}

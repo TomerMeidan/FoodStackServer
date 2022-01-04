@@ -17,10 +17,8 @@ import controllers.SupplierPortalViewController;
  * @author Daniel Ohayon
  */
 public class EventManager {
-//	private DataBase db = new DataBase();
 	private HashMap<String, ArrayList<EventListener>> listeners = new HashMap<>();
-//	private HashMap<String, CustomerPortalViewController> customerViews = new HashMap<>();
-//	private HashMap<String, SupplierPortalViewController> supplierViews = new HashMap<>();
+
 
 	private static EventManager instance = null;
 
