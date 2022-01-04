@@ -86,7 +86,7 @@ public class DataBase {
 		// log
 		Logger.log(Level.DEBUG, "DataBase : SQL connection succeed");
 		System.out.println("DataBase : SQL connection succeed");
-		importUsers();
+		//importUsers();
 	}
 
 	public void importUsers() {
@@ -337,7 +337,7 @@ public class DataBase {
 	/**
 	 * This method adds an order to the database using the help of a few private
 	 * methods:<br>
-	 * addMealsPerOrder(), , updateRefundBalance(), handleBusCustomerBalance()
+	 * addMealsPerOrder, , updateRefundBalance, handleBusCustomerBalance, saveOrderDetailsInDatabase
 	 * <p>
 	 * Make sure to include the correct keys: "totalPrice", "userID", "userID",
 	 * "paymentType", "orderTime", "dueDate", "restaurantName", "pickUpType"
@@ -355,59 +355,158 @@ public class DataBase {
 	 *         .
 	 */
 	public JSONObject addOrder(JSONObject order) {
-		PreparedStatement preStmt;
 		JSONObject response = new JSONObject();
-		boolean addFailFlag = true; // flag to check if adding to database fails
 		response.put("command", "update");
 		try {
-			conn.setAutoCommit(false);
-			Integer totalPrice = Message.getValueLong(order, "totalPrice").intValue();
-			String userID = Message.getValueString(order, "userID");
+			conn.setAutoCommit(false); //set to true in saveOrderDetailsInDatabase
 			String paymentType = Message.getValueString(order, "paymentType");
-			preStmt = conn.prepareStatement(
-					"INSERT INTO orders (UserID,OrderDate,DueDate, RestaurantName, PaymentType, Total, PickUpType, EarlyBooking,Address,PhoneNumber,Status,SupplierID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-					Statement.RETURN_GENERATED_KEYS);
-			preStmt.setInt(1, Integer.valueOf(userID)); // UserID
-			preStmt.setString(2, Message.getValueString(order, "orderTime")); // OrderDate
-			preStmt.setString(3, Message.getValueString(order, "dueDate")); // dueDate
-			preStmt.setString(4, Message.getValueString(order, "restaurantName"));
-			preStmt.setString(5, paymentType);
-			preStmt.setInt(6, totalPrice);
-			preStmt.setString(7, Message.getValueString(order, "pickUpType"));// order type
-			preStmt.setString(8, Message.getValueString(order, "earlyBooking"));
-			preStmt.setString(9, Message.getValueString(order, "address"));// address
-			preStmt.setString(10, Message.getValueString(order, "phoneNumber"));// phone
-			preStmt.setString(11, "Waiting for approval");// status
-			preStmt.setString(12, Message.getValueString(order, "supplierID"));//
-			preStmt.executeUpdate();
-			ResultSet keys = preStmt.getGeneratedKeys();
-			keys.next();
-
-			order.put("orderID", keys.getInt(1));
-			if (addMealsPerOrder(order))
-				addFailFlag = false;
-			updateRefundBalance(order);
 			if (paymentType.equals("Business")) {
-				if (handleBusCustomerBalance(order)) {
-					addFailFlag = false;
-				} else {
-					addFailFlag = true;
+				int currentBalance = getBusinessCustomerBalance(order);
+				if (!handleBusCustomerBalance(order, currentBalance)) 
+				{
+					conn.rollback();
+					response.put("currentBalance", currentBalance);
+					response.put("update", "Order failed");
+					response.put("reason",  "Not enough in balance");
+					conn.setAutoCommit(true);
+					return response;
 				}
 			}
-			if (addFailFlag) {
+			if(!saveOrderDetailsInDatabase(order)) {
 				conn.rollback();
-				response.put("update", "Order cancelled, not enough funds");
-			} else {
-				conn.commit();
-				response.put("update", "Order was successfuly added");
+				conn.setAutoCommit(true);
+				response.put("update", "Order failed");
+				response.put("reason", "Error in system");
+				return response;
 			}
-			conn.setAutoCommit(true);
+			response.put("update", "Order was successfuly added");
 		} catch (SQLException e) {
 			System.out.println(e);
 			System.out.println("DATABASE: SQLException in addOrder");
 			Logger.log(Level.WARNING, "DATABASE: SQLException in addOrder");
 		}
 		return response;
+	}
+	
+	/**Adds the order into database
+	 * @param order
+	 * @return true if success, else false
+	 * @see addOrder method for more info
+	 */
+	public boolean saveOrderDetailsInDatabase(JSONObject order) {
+		handleRefundBalance(order);
+		Integer totalPrice = Message.getValueLong(order, "totalPrice").intValue();
+		String userID = Message.getValueString(order, "userID");
+		String paymentType = Message.getValueString(order, "paymentType");
+	try {
+		PreparedStatement preStmt = conn.prepareStatement(
+				"INSERT INTO orders (UserID,OrderDate,DueDate, RestaurantName, PaymentType, Total, PickUpType, EarlyBooking,Address,PhoneNumber,Status,SupplierID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+				Statement.RETURN_GENERATED_KEYS);
+		preStmt.setInt(1, Integer.valueOf(userID)); // UserID
+		preStmt.setString(2, Message.getValueString(order, "orderTime")); // OrderDate
+		preStmt.setString(3, Message.getValueString(order, "dueDate")); // dueDate
+		preStmt.setString(4, Message.getValueString(order, "restaurantName"));
+		preStmt.setString(5, paymentType);
+		preStmt.setInt(6, totalPrice);
+		preStmt.setString(7, Message.getValueString(order, "pickUpType"));// order type
+		preStmt.setString(8, Message.getValueString(order, "earlyBooking"));
+		preStmt.setString(9, Message.getValueString(order, "address"));// address
+		preStmt.setString(10, Message.getValueString(order, "phoneNumber"));// phone
+		preStmt.setString(11, "Waiting for approval");// status
+		preStmt.setString(12, Message.getValueString(order, "supplierID"));//
+		preStmt.executeUpdate();
+		ResultSet keys = preStmt.getGeneratedKeys();
+		keys.next();
+		order.put("orderID", keys.getInt(1));
+		if(!addMealsPerOrder(order)) 
+			return false;
+		conn.commit();
+		conn.setAutoCommit(true);
+	}
+	catch(SQLException e) {
+		System.out.println("DATABASE: SQLException in saveOrderDetailsInDatabase: " +e);
+		return false;
+	}	
+		return true;
+	}
+
+	/**
+	 * if a customer is Business customer, he has a Balance (daily cap).
+	 * <p>
+	 * This method updates the Balance of the customer in the database
+	 * <p>
+	 * Make sure to include keys:<br>
+	 * "userID", with value String<br>
+	 * "leftToPay", with value Long<br>
+	 * 
+	 * @author mosa
+	 * @param order
+	 * @return false if customer doesn't have enough in his balance else true
+	 */
+	private boolean handleBusCustomerBalance(JSONObject order, int balance) {
+		String userID = Message.getValueString(order, "userID");
+		int leftToPay = Message.getValueLong(order, "leftToPay").intValue();
+		int newBalance = leftToPay;
+		try {
+			newBalance = balance - leftToPay;
+			if (newBalance < 0)
+				return false;
+			PreparedStatement preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
+			preStmt.setInt(1, newBalance);
+			preStmt.setString(2, userID);
+			preStmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e);
+			System.out.println("DATABASE: SQLException in handleBusCustomerBalance");
+			Logger.log(Level.WARNING, "DATABASE: SQLException in handleBusCustomerBalance");
+		}
+		return true;
+	}
+	
+	/**ONLY USED AFTER CUSTOMER CLICKS YES (paying with customer balance and credit)
+	 * Change the business customer's balance to 0 (because not enough in balance) and save order into database
+	 * @param order
+	 * @return true if success, else false
+	 */
+	public boolean zeroBusinessCustomerBalance(JSONObject order) {
+		String userID = Message.getValueString(order, "userID");
+		try {
+			conn.setAutoCommit(false);
+			PreparedStatement preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
+			preStmt.setInt(1, 0);
+			preStmt.setString(2, userID);
+			preStmt.executeUpdate();
+			if(!saveOrderDetailsInDatabase(order))
+				return false;
+		} catch (SQLException e) {
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.out.println(e);
+			System.out.println("DATABASE: SQLException in handleBusCustomerBalance");
+			Logger.log(Level.WARNING, "DATABASE: SQLException in handleBusCustomerBalance");
+			return false;
+		}
+		return true;
+	}
+
+	private int getBusinessCustomerBalance(JSONObject order) {
+		String userID = Message.getValueString(order, "userID");
+		try {
+			PreparedStatement preStmt = conn.prepareStatement("SELECT Balance FROM customers WHERE UserID = ?");
+			preStmt.setString(1, userID);
+			ResultSet rs = preStmt.executeQuery();
+			if (rs.next())
+				return rs.getInt("Balance");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return 0; // ??
 	}
 
 	/**
@@ -482,47 +581,6 @@ public class DataBase {
 	}
 
 	/**
-	 * if a customer is Business customer, he has a Balance (daily cap).
-	 * <p>
-	 * This method updates the Balance of the customer in the database
-	 * <p>
-	 * Make sure to include keys:<br>
-	 * "userID", with value String<br>
-	 * "leftToPay", with value Long<br>
-	 * 
-	 * @author mosa
-	 * @param order
-	 * @return false if customer doesn't have enough in his balance else true
-	 */
-	private boolean handleBusCustomerBalance(JSONObject order) {
-		String userID = Message.getValueString(order, "userID");
-		int leftToPay = Message.getValueLong(order, "leftToPay").intValue();
-		int newBalance = leftToPay;
-		int balance;
-		try {
-			PreparedStatement preStmt = conn.prepareStatement("SELECT Balance FROM customers WHERE UserID = ?");
-			preStmt.setString(1, userID);
-			ResultSet rs = preStmt.executeQuery();
-			if (rs.next()) {
-				balance = rs.getInt("Balance");
-			} else
-				balance = 0; // ??
-			newBalance = balance - leftToPay;
-			if (newBalance < 0)
-				return false;
-			preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
-			preStmt.setInt(1, newBalance);
-			preStmt.setString(2, userID);
-			preStmt.executeUpdate();
-		} catch (SQLException e) {
-			System.out.println(e);
-			System.out.println("DATABASE: SQLException in handleBusCustomerBalance");
-			Logger.log(Level.WARNING, "DATABASE: SQLException in handleBusCustomerBalance");
-		}
-		return true;
-	}
-
-	/**
 	 * This method updates the refund balance of a business customer<br>
 	 * Condition: key "refundBalanceUsed" has value boolean true
 	 * 
@@ -531,7 +589,7 @@ public class DataBase {
 	 *              "userID", with value String<br>
 	 *              "supplierID", with value String
 	 */
-	private void updateRefundBalance(JSONObject order) {
+	private void handleRefundBalance(JSONObject order) {
 		if (!((boolean) order.get("refundBalanceUsed")))
 			return;
 		int refundBalance = Message.getValueLong(order, "refundBalance").intValue();
@@ -614,6 +672,7 @@ public class DataBase {
 			// log
 			Logger.log(Level.WARNING, "DATABASE: SQLException in registerRegularCustomer");
 			System.out.println("DATABASE: SQLException in registerRegularCustomer");
+			response.put("update", "could not register regular customer");
 
 			try {
 				conn.rollback();
@@ -621,7 +680,6 @@ public class DataBase {
 				Logger.log(Level.WARNING, "DATABASE: SQLException in registerRegularCustomer, rollback");
 				System.out.println("DATABASE: SQLException in registerRegularCustomer, rollback");
 			}
-			response.put("update", "could not register regular customer");
 
 			try {
 				conn.setAutoCommit(true);
@@ -3259,8 +3317,6 @@ public class DataBase {
 		JSONArray orders = new JSONArray();
 		try {
 			Statement stmt = conn.createStatement();
-			System.out.println("SELECT * FROM bitemedb.orders WHERE UserID = " + userID
-					+ " AND (Status = 'Waiting for approval' OR Status = 'Ready')");
 			ResultSet rs = stmt.executeQuery("SELECT * FROM bitemedb.orders WHERE UserID = " + userID
 					+ " AND (Status = 'Waiting for approval' OR Status = 'Ready')");
 			while (rs.next()) {
@@ -3361,14 +3417,13 @@ public class DataBase {
 		String deliverDate = Message.getValueString(json, "deliverDate");
 		JSONObject response = new JSONObject();
 		try {
+			checkIfEligibleForRefund(json);
 			PreparedStatement preStmt = conn
 					.prepareStatement("UPDATE orders SET DeliverDate = ? , Status = ? WHERE OrderID = ?");
 			preStmt.setString(1, deliverDate);
 			preStmt.setString(2, "Delivered");
 			preStmt.setInt(3, orderID);
 			preStmt.executeUpdate();
-			checkIfEligibleForRefund(json);
-
 		} catch (SQLException e) {
 			System.out.println(e);
 			System.out.println("DATABASE: SQLException in updateOrderRecieved");
