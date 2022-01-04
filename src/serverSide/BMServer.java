@@ -9,20 +9,25 @@ import common.Logger.Level;
 import controllers.ComController;
 import controllers.PortalViewControllerFactory;
 
+/**
+ * BMServer
+ * 
+ * Main class
+ * 
+ * @author Daniel Ohayon
+ */
 public class BMServer extends Application {
 	final public static int DEFAULT_PORT = 5555;
 	final public static String DEFAULT_USER = "root";
 
-
 	final public static String DEFAULT_PASSWORD = "Dan11111";
 
-	
 	private static DataBase db = new DataBase();
 	private static ComController com;
 	private static PortalViewControllerFactory factory;
 	private OrderManager orderMngr = new OrderManager(db);
 	private static PeriodicActivityService periodicSrvc = new PeriodicActivityService();
-	
+
 	public static void main(String args[]) throws Exception {
 		Logger.init();
 		Logger.setLevel(Level.DEBUG);
@@ -43,7 +48,7 @@ public class BMServer extends Application {
 		try {
 			com = new ComController(Integer.valueOf(p));
 			factory = new PortalViewControllerFactory(db, com);
-			
+
 			db.start();
 		} catch (SQLException e) {
 			// log
@@ -64,7 +69,6 @@ public class BMServer extends Application {
 		com.setFactory(factory);
 		com.start();
 
-		
 		periodicSrvc.start();
 
 	}

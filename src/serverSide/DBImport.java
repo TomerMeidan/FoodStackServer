@@ -12,7 +12,14 @@ import org.json.simple.JSONObject;
 import common.Logger;
 import common.Message;
 import common.Logger.Level;
-
+/**
+ * DataBase
+ * 
+ * This class is the DBImport controller. This class holds a Connection to MySQL
+ * database server. 
+ * 
+ * @author Daniel Ohayon
+ */
 public class DBImport {
 	@SuppressWarnings("unchecked")
 	private static Connection conn;
@@ -23,6 +30,13 @@ public class DBImport {
 		this.connImport = connImport;
 	}
 	
+	
+	/**
+	 * importAll
+	 * 
+	 * This method call to all method that import specific tables
+	 * 
+	 */
 	public void importAll()
 	{
 		resetUsers();
@@ -35,7 +49,12 @@ public class DBImport {
 		
 	}
 	
-	
+	/**
+	 * resetUsers
+	 * 
+	 * This method insert users information to users table in mysql except employer role. 
+	 * 
+	 */
 	private void resetUsers() {
 		ResultSet rs;
 		Statement stmtIm;
@@ -65,7 +84,12 @@ public class DBImport {
 		System.out.println("DataBase : import users succeed");
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * resetEmployer
+	 * 
+	 * This method insert employers(from users import) information to employers table in mysql. 
+	 * 
+	 */
 	private void resetEmployer() {
 		ResultSet rs;
 		Statement stmtIm;
@@ -93,7 +117,12 @@ public class DBImport {
 		System.out.println("DataBase : import employers succeed");
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * resetHR
+	 * 
+	 * This method insert human resource(from users import) information to HR table in mysql. 
+	 * 
+	 */
 	private void resetHR() {
 		ResultSet rs;
 		Statement stmtIm;
@@ -122,7 +151,12 @@ public class DBImport {
 		System.out.println("DataBase : import HR succeed");
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * resetBM
+	 * 
+	 * This method insert branch manager(from users import) information to branchmanager table in mysql. 
+	 * 
+	 */
 	private void resetBM() {
 		ResultSet rs;
 		Statement stmtIm;
@@ -152,7 +186,12 @@ public class DBImport {
 		System.out.println("DataBase : import BM succeed");
 	}
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * resetSupplier
+	 * 
+	 * This method insert supplier(from users import) information to suppliers table in mysql. 
+	 * 
+	 */
 	private void resetSupplier() {
 		ResultSet rs;
 		Statement stmtIm;
@@ -179,7 +218,12 @@ public class DBImport {
 		System.out.println("DataBase : import Supplier succeed");
 	}
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * resetCustomer
+	 * 
+	 * This method insert customer(from users import) information to customers table in mysql. 
+	 * 
+	 */
 	private void resetCustomer() {
 		ResultSet rs;
 		Statement stmtIm;
@@ -207,7 +251,12 @@ public class DBImport {
 		System.out.println("DataBase : import Customer succeed");
 	}
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * resetCEO
+	 * 
+	 * This method insert CEO(from users import) information to CEO table in mysql. 
+	 * 
+	 */
 	private void resetCEO() {
 		ResultSet rs;
 		Statement stmtIm;

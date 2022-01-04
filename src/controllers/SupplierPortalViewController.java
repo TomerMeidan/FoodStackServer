@@ -288,7 +288,7 @@ public class SupplierPortalViewController implements PortalViewController {
 				ArrayList<String> approvalCustomer = (ArrayList<String>) json.get("customersID");
 				for (String id : approvalCustomer) {
 					ConnectionToClient customerConnection = com.findConnection(id);
-					respons = manage.orderIsReady(json);
+					respons = db.approveOrder(json);
 					respons.put("customerID", id);
 					if (customerConnection != null) {
 						customerConnection.sendToClient(Parser.encode(respons));

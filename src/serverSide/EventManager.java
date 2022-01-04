@@ -8,14 +8,27 @@ import org.json.simple.JSONObject;
 import controllers.CustomerPortalViewController;
 import controllers.SupplierPortalViewController;
 
+/**
+ * EventManager
+ * 
+ * Singleton class This class have static object of 'EventManager'(this class)
+ * to implement only single instance from this class.
+ * 
+ * @author Daniel Ohayon
+ */
 public class EventManager {
-	private DataBase db = new DataBase();
+//	private DataBase db = new DataBase();
 	private HashMap<String, ArrayList<EventListener>> listeners = new HashMap<>();
-	private HashMap<String, CustomerPortalViewController> customerViews = new HashMap<>();
-	private HashMap<String, SupplierPortalViewController> supplierViews = new HashMap<>();
-	
+//	private HashMap<String, CustomerPortalViewController> customerViews = new HashMap<>();
+//	private HashMap<String, SupplierPortalViewController> supplierViews = new HashMap<>();
+
 	private static EventManager instance = null;
 
+	/**
+	 * getInstance
+	 * 
+	 * This method ensure only single instance from this class.
+	 */
 	public static EventManager getInstance() {
 		if (instance == null)
 			instance = new EventManager();
@@ -55,8 +68,4 @@ public class EventManager {
 		}
 	}
 
-	public JSONObject orderIsReady(JSONObject json) {
-		JSONObject respone = db.approveOrder(json);
-		return respone;
-	}
 }
