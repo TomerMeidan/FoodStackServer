@@ -203,6 +203,7 @@ public class LoginPortalViewController implements PortalViewController {
 				ID = id;
 			} else {
 				response.replace("status", "notOk");
+				response.put("notOk", "User already logged in");
 			}
 		}
 		return response;

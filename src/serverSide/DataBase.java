@@ -672,6 +672,7 @@ public class DataBase {
 			// log
 			Logger.log(Level.WARNING, "DATABASE: SQLException in registerRegularCustomer");
 			System.out.println("DATABASE: SQLException in registerRegularCustomer");
+			response.put("update", "could not register regular customer");
 
 			try {
 				conn.rollback();
@@ -679,7 +680,6 @@ public class DataBase {
 				Logger.log(Level.WARNING, "DATABASE: SQLException in registerRegularCustomer, rollback");
 				System.out.println("DATABASE: SQLException in registerRegularCustomer, rollback");
 			}
-			response.put("update", "could not register regular customer");
 
 			try {
 				conn.setAutoCommit(true);
