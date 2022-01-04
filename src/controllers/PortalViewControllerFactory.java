@@ -1,10 +1,9 @@
 package controllers;
 
-import ocsf.server.ConnectionToClient;
-
-import serverSide.DataBase;
 import common.Logger;
 import common.Logger.Level;
+import ocsf.server.ConnectionToClient;
+import serverSide.DataBase;
 
 /**
  * PortalViewControllerFactory

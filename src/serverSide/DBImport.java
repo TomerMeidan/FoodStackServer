@@ -1,16 +1,12 @@
 package serverSide;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.json.simple.JSONObject;
-
 import common.Logger;
-import common.Message;
 import common.Logger.Level;
 /**
  * DataBase

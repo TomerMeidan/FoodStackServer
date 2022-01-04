@@ -7,7 +7,7 @@ import java.sql.Statement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import util.Logger.Level;
+import common.Message;
 @SuppressWarnings("unchecked")
 public class Menu {
 	private JSONObject menu;
@@ -81,7 +81,6 @@ public class Menu {
 				itemTypesArray.add(itemType);
 			}
 		} catch (SQLException e) {
-			Logger.log(Level.WARNING, "Menu class: SQLException in getTypes");
 			System.out.println("Menu class: SQLException in getTypes");
 		}
 		return itemTypesArray;
@@ -108,7 +107,6 @@ public class Menu {
 				itemsArray.add(item);
 			}		
 		} catch (SQLException e) {
-			Logger.log(Level.WARNING, "Menu: SQLException in method getItemsByType");
 			System.out.println("Menu: SQLException in method getItemsByType");
 		}
 		return itemsArray;
@@ -133,7 +131,6 @@ public class Menu {
 				mustFeatureArray.add(mustFeature);
 			}		
 		} catch (SQLException e) {
-			Logger.log(Level.WARNING, "Menu: getItemMustFeatureList: SQLException");
 			System.out.println("Menu: getItemMustFeatureList: SQLException");
 		}
 		return mustFeatureArray;
@@ -157,7 +154,6 @@ public class Menu {
 				optionalFeatureArray.add(optionalFeature);
 			}		
 		} catch (SQLException e) {
-			Logger.log(Level.WARNING, "Menu: SQLException in getItemOptionalFeatureList");
 			System.out.println("Menu: SQLException in getItemOptionalFeatureList");
 		}
 		return optionalFeatureArray;

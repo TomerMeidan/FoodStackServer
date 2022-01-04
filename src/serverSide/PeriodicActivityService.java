@@ -1,11 +1,7 @@
 package serverSide;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,9 +10,10 @@ import java.util.concurrent.TimeUnit;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import common.DateParser;
 import common.Logger;
-import common.Message;
 import common.Logger.Level;
+import common.Message;
 
 /**
  * PeriodicActivityService
@@ -114,7 +111,6 @@ public class PeriodicActivityService {
 		nextReportUpdateCycle(delay);
 
 		executor.schedule(new saveOrdersInformationTask(), delay, TimeUnit.MILLISECONDS);
-
 	}
 
 	/**
@@ -272,15 +268,15 @@ public class PeriodicActivityService {
 		for (int i = 0; i < size; i++) {
 
 			JSONObject restaurantInfo = (JSONObject) restaurantsOrdersList.get(i);
-			restaurantNameInCheck = Message.getValue(restaurantInfo, "restaurantName");
-			restaurantMonthInCheck = dateParser(Message.getValue(restaurantInfo, "orderDate"), "month");
-			restaurantYearInCheck = dateParser(Message.getValue(restaurantInfo, "orderDate"), "year");
+			restaurantNameInCheck = Message.getValueString(restaurantInfo, "restaurantName");
+			restaurantMonthInCheck = DateParser.dateParser(Message.getValueString(restaurantInfo, "orderDate"), "month");
+			restaurantYearInCheck = DateParser.dateParser(Message.getValueString(restaurantInfo, "orderDate"), "year");
 
 			if (firstEnterance) {
 				currentRestaurantName = restaurantNameInCheck;
 				currentRestaurantDateMonth = restaurantMonthInCheck;
 				currentRestaurantDateYear = restaurantYearInCheck;
-				currentRestaurantBranch = Message.getValue(restaurantInfo, "branch");
+				currentRestaurantBranch = Message.getValueString(restaurantInfo, "branch");
 				totalIncome = ((Integer) restaurantInfo.get("total"));
 				totalOrders = 1;
 
@@ -317,7 +313,7 @@ public class PeriodicActivityService {
 				currentRestaurantName = restaurantNameInCheck;
 				currentRestaurantDateMonth = restaurantMonthInCheck;
 				currentRestaurantDateYear = restaurantYearInCheck;
-				currentRestaurantBranch = Message.getValue(restaurantInfo, "branch");
+				currentRestaurantBranch = Message.getValueString(restaurantInfo, "branch");
 				totalIncome = ((Integer) restaurantInfo.get("total"));
 				totalOrders = 1;
 			}
@@ -342,8 +338,8 @@ public class PeriodicActivityService {
 
 		JSONObject response = dataBase.saveIncomeReportInformation(restaurantOrdersInfoToDataBase);
 		Logger.log(Level.DEBUG,
-				"PeriodicActivityService : updateIncomeReportData: " + Message.getValue(response, "status"));
-		System.out.println("PeriodicActivityService : updateIncomeReportData: " + Message.getValue(response, "status"));
+				"PeriodicActivityService : updateIncomeReportData: " + Message.getValueString(response, "status"));
+		System.out.println("PeriodicActivityService : updateIncomeReportData: " + Message.getValueString(response, "status"));
 	}
 
 	/**
@@ -409,12 +405,12 @@ public class PeriodicActivityService {
 	}
 
 	private void buildDate(String restauranDueDate, Date dueDate) {
-		dueDate.setSeconds(Integer.parseInt(dateParser(restauranDueDate, "seconds")));
-		dueDate.setMinutes(Integer.parseInt(dateParser(restauranDueDate, "minutes")));
-		dueDate.setHours(Integer.parseInt(dateParser(restauranDueDate, "hours")));
-		dueDate.setDate(Integer.parseInt(dateParser(restauranDueDate, "day")));
-		dueDate.setMonth(Integer.parseInt(dateParser(restauranDueDate, "month")) - 1);
-		dueDate.setYear(Integer.parseInt(dateParser(restauranDueDate, "year")) - 1900);
+		dueDate.setSeconds(Integer.parseInt(DateParser.dateParser(restauranDueDate, "seconds")));
+		dueDate.setMinutes(Integer.parseInt(DateParser.dateParser(restauranDueDate, "minutes")));
+		dueDate.setHours(Integer.parseInt(DateParser.dateParser(restauranDueDate, "hours")));
+		dueDate.setDate(Integer.parseInt(DateParser.dateParser(restauranDueDate, "day")));
+		dueDate.setMonth(Integer.parseInt(DateParser.dateParser(restauranDueDate, "month")) - 1);
+		dueDate.setYear(Integer.parseInt(DateParser.dateParser(restauranDueDate, "year")) - 1900);
 	}
 
 	/**
@@ -463,15 +459,15 @@ public class PeriodicActivityService {
 		for (int i = 0; i < size; i++) {
 
 			JSONObject restaurantInfo = (JSONObject) restaurantsOrdersList.get(i);
-			restaurantNameInCheck = Message.getValue(restaurantInfo, "restaurantName");
-			restaurantMonthInCheck = dateParser(Message.getValue(restaurantInfo, "orderDate"), "month");
-			restaurantYearInCheck = dateParser(Message.getValue(restaurantInfo, "orderDate"), "year");
+			restaurantNameInCheck = Message.getValueString(restaurantInfo, "restaurantName");
+			restaurantMonthInCheck = DateParser.dateParser(Message.getValueString(restaurantInfo, "orderDate"), "month");
+			restaurantYearInCheck = DateParser.dateParser(Message.getValueString(restaurantInfo, "orderDate"), "year");
 
 			if (firstEnterance) {
 				currentRestaurantName = restaurantNameInCheck;
 				currentRestaurantDateMonth = restaurantMonthInCheck;
 				currentRestaurantDateYear = restaurantYearInCheck;
-				currentRestaurantBranch = Message.getValue(restaurantInfo, "branch");
+				currentRestaurantBranch = Message.getValueString(restaurantInfo, "branch");
 
 				onTimeCount = lateTimeCount = 0;
 				onTimeAverage = lateTimeAverage = 0;
@@ -483,9 +479,9 @@ public class PeriodicActivityService {
 					&& restaurantMonthInCheck.equals(currentRestaurantDateMonth)
 					&& restaurantYearInCheck.equals(currentRestaurantDateYear)) {
 
-				currentDueDate = Message.getValue(restaurantInfo, "dueDate");
-				currentDeliverDate = Message.getValue(restaurantInfo, "deliverDate");
-				currentEarlyBooking = Message.getValue(restaurantInfo, "earlyBooking");
+				currentDueDate = Message.getValueString(restaurantInfo, "dueDate");
+				currentDeliverDate = Message.getValueString(restaurantInfo, "deliverDate");
+				currentEarlyBooking = Message.getValueString(restaurantInfo, "earlyBooking");
 
 				timeDifference = preformanceCheck(currentDueDate, currentDeliverDate);
 
@@ -539,10 +535,10 @@ public class PeriodicActivityService {
 				currentRestaurantName = restaurantNameInCheck;
 				currentRestaurantDateMonth = restaurantMonthInCheck;
 				currentRestaurantDateYear = restaurantYearInCheck;
-				currentRestaurantBranch = Message.getValue(restaurantInfo, "branch");
-				currentDueDate = Message.getValue(restaurantInfo, "dueDate");
-				currentDeliverDate = Message.getValue(restaurantInfo, "deliverDate");
-				currentEarlyBooking = Message.getValue(restaurantInfo, "earlyBooking");
+				currentRestaurantBranch = Message.getValueString(restaurantInfo, "branch");
+				currentDueDate = Message.getValueString(restaurantInfo, "dueDate");
+				currentDeliverDate = Message.getValueString(restaurantInfo, "deliverDate");
+				currentEarlyBooking = Message.getValueString(restaurantInfo, "earlyBooking");
 
 				onTimeCount = lateTimeCount = 0;
 				onTimeAverage = lateTimeAverage = 0;
@@ -607,8 +603,8 @@ public class PeriodicActivityService {
 
 		JSONObject response = dataBase.savePerformanceReportInformation(restaurantPerformanceInfoToDataBase);
 		Logger.log(Level.DEBUG,
-				"PeriodicActivityService : updateIncomeReportData: " + Message.getValue(response, "status"));
-		System.out.println("PeriodicActivityService : updateIncomeReportData: " + Message.getValue(response, "status"));
+				"PeriodicActivityService : updateIncomeReportData: " + Message.getValueString(response, "status"));
+		System.out.println("PeriodicActivityService : updateIncomeReportData: " + Message.getValueString(response, "status"));
 
 	}
 
@@ -663,14 +659,14 @@ public class PeriodicActivityService {
 			for (int j = 0; j < sizeOfSingleItem; j++) {
 
 				JSONObject singleMealRow = (JSONObject) restaurantInfo.get(j);
-				checkRestaurantItemName = Message.getValue(singleMealRow, "itemName");
+				checkRestaurantItemName = Message.getValueString(singleMealRow, "itemName");
 
 				if (firstEnterance) {
-					currentRestaurantName = Message.getValue(singleMealRow, "restaurantName");
-					currentRestaurantDateMonth = dateParser(Message.getValue(singleMealRow, "orderDate"), "month");
-					currentRestaurantDateYear = dateParser(Message.getValue(singleMealRow, "orderDate"), "year");
-					currentRestaurantBranch = Message.getValue(singleMealRow, "branch");
-					currentRestaurantItem = Message.getValue(singleMealRow, "itemType");
+					currentRestaurantName = Message.getValueString(singleMealRow, "restaurantName");
+					currentRestaurantDateMonth = DateParser.dateParser(Message.getValueString(singleMealRow, "orderDate"), "month");
+					currentRestaurantDateYear = DateParser.dateParser(Message.getValueString(singleMealRow, "orderDate"), "year");
+					currentRestaurantBranch = Message.getValueString(singleMealRow, "branch");
+					currentRestaurantItem = Message.getValueString(singleMealRow, "itemType");
 					currentRestaurantItemName = checkRestaurantItemName;
 
 					specificItemCount = 1;
@@ -720,8 +716,8 @@ public class PeriodicActivityService {
 
 		JSONObject response = dataBase.saveItemsPerRestaurantReportInformation(itemsPerRestaurant);
 		Logger.log(Level.DEBUG,
-				"PeriodicActivityService : updateItemsReportData: " + Message.getValue(response, "status"));
-		System.out.println("PeriodicActivityService : updateItemsReportData: " + Message.getValue(response, "status"));
+				"PeriodicActivityService : updateItemsReportData: " + Message.getValueString(response, "status"));
+		System.out.println("PeriodicActivityService : updateItemsReportData: " + Message.getValueString(response, "status"));
 
 	}
 
@@ -768,77 +764,4 @@ public class PeriodicActivityService {
 		json.put("branch", restaurantBranch);
 		return json;
 	}
-
-	public static String dateParser(String dateString, String type) {
-
-		String parsedString = "";
-
-		switch (type) {
-		case "year":
-			parsedString = dateString.substring(20, 24);
-			break;
-		case "month":
-			switch (dateString.substring(0, 3)) {
-			case "Jan":
-				parsedString = "01";
-				break;
-			case "Feb":
-				parsedString = "02";
-				break;
-			case "Mar":
-				parsedString = "03";
-				break;
-			case "Apr":
-				parsedString = "04";
-				break;
-			case "May":
-				parsedString = "05";
-				break;
-			case "Jun":
-				parsedString = "06";
-				break;
-			case "Jul":
-				parsedString = "07";
-				break;
-			case "Aug":
-				parsedString = "08";
-				break;
-			case "Sep":
-				parsedString = "09";
-				break;
-			case "Oct":
-				parsedString = "10";
-				break;
-			case "Nov":
-				parsedString = "11";
-				break;
-			case "Dec":
-				parsedString = "12";
-				break;
-			default:
-				System.out.println("Parser: dateSQL: Invalid month detected, parsing did not succeed.");
-				break;
-			}
-			break;
-		case "day":
-			parsedString = dateString.substring(4, 6);
-			break;
-		case "seconds":
-			parsedString = dateString.substring(13, 15);
-			break;
-		case "minutes":
-			parsedString = dateString.substring(10, 12);
-			break;
-		case "hours":
-			parsedString = dateString.substring(7, 9);
-			break;
-		default:
-			System.out.println("Parser: dateSQL: Invalid date value detected, parsing did not succeed.");
-			break;
-		}
-
-		return parsedString;
-
-	}
-
 }

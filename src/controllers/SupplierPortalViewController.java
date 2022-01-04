@@ -1,19 +1,17 @@
 package controllers;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
-
-import serverSide.DataBase;
-import serverSide.EventManager;
 
 import org.json.simple.JSONObject;
 
-import ocsf.server.ConnectionToClient;
 import common.Logger;
+import common.Logger.Level;
 import common.Message;
 import common.Parser;
-import common.Logger.Level;
+import ocsf.server.ConnectionToClient;
+import serverSide.DataBase;
+import serverSide.EventManager;
 /**
  * SupplierPortalViewController
  * 
@@ -79,7 +77,7 @@ public class SupplierPortalViewController implements PortalViewController {
 	@Override
 	public void handleCommandFromClient(JSONObject json) {
 		JSONObject respons = new JSONObject();
-		switch (Message.getValue(json, "command")) {
+		switch (Message.getValueString(json, "command")) {
 		case "ready":
 			com.switchPortal(connection, "Supplier");
 			break;
@@ -253,7 +251,7 @@ public class SupplierPortalViewController implements PortalViewController {
 		case "Add Meal button was pressed":
 			respons.put("command", "update");
 			respons.put("update", "showAddMealDetails");
-			respons.put("itemType", Message.getValue(json, "itemType"));
+			respons.put("itemType", Message.getValueString(json, "itemType"));
 			try {
 				connection.sendToClient(Parser.encode(respons));
 			} catch (IOException e) {
@@ -342,7 +340,7 @@ public class SupplierPortalViewController implements PortalViewController {
 	@SuppressWarnings("unchecked")
 	private void handleTypeDisplayed(JSONObject json) {
 		JSONObject respons = new JSONObject();
-		respons = db.getMenu(Message.getValue(json, "userID"));
+		respons = db.getMenu(Message.getValueString(json, "userID"));
 		try {
 			connection.sendToClient(Parser.encode(respons));
 		} catch (IOException e) {

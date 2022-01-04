@@ -5,9 +5,6 @@ import java.util.HashMap;
 
 import org.json.simple.JSONObject;
 
-import controllers.CustomerPortalViewController;
-import controllers.SupplierPortalViewController;
-
 /**
  * This class is an Observer class + Singleton.
  * This class currently is unused, this might be usefull in hte future.
