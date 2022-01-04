@@ -9,8 +9,6 @@ import controllers.CustomerPortalViewController;
 import controllers.SupplierPortalViewController;
 
 /**
- * EventManager
- * 
  * This class is an Observer class + Singleton.
  * This class currently is unused, this might be usefull in hte future.
  * This class was originaly designed to handle Event's such as 'Make order' for suppliers.
@@ -20,11 +18,10 @@ import controllers.SupplierPortalViewController;
  * DataBase db - for handling any database usage.
  * listeners - for storing 'Events'
  * @author Roman Milman
+
  */
 public class EventManager {
-	private DataBase db = new DataBase();
 	private HashMap<String, ArrayList<EventListener>> listeners = new HashMap<>();
-	
 	private static EventManager instance = null;
 
 	/**
@@ -98,9 +95,5 @@ public class EventManager {
 			}
 		}
 	}
-	
-	public JSONObject orderIsReady(JSONObject json) {
-		JSONObject respone = db.approveOrder(json);
-		return respone;
-	}
+
 }

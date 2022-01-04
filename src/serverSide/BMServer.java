@@ -9,20 +9,24 @@ import common.Logger.Level;
 import controllers.ComController;
 import controllers.PortalViewControllerFactory;
 
+/**
+ * BMServer
+ * 
+ * Main class
+ * 
+ * @author Daniel Ohayon
+ */
 public class BMServer extends Application {
 	final public static int DEFAULT_PORT = 5555;
 	final public static String DEFAULT_USER = "root";
+	final public static String DEFAULT_PASSWORD = "Dan11111";
 
-
-	final public static String DEFAULT_PASSWORD = "1937258asdf";
-
-	
 	private static DataBase db = new DataBase();
 	private static ComController com;
 	private static PortalViewControllerFactory factory;
 	private OrderManager orderMngr = new OrderManager(db);
 	private static PeriodicActivityService periodicSrvc = new PeriodicActivityService();
-	
+
 	public static void main(String args[]) throws Exception {
 		Logger.init();
 		Logger.setLevel(Level.DEBUG);
@@ -30,23 +34,36 @@ public class BMServer extends Application {
 		launch(args);
 
 		System.exit(0);
-	} // end main
+	}
 
+	/**
+	 * start
+	 * 
+	 * This method starts load the template of server
+	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
+
 		BMServerWindow aFrame = new BMServerWindow();
 		aFrame.start(primaryStage);
 	}
 
+	/**
+	 * runServer
+	 * 
+	 * This method called when a client enter connects. The method reset factory by
+	 * called setFactory method of ComController. This method starts listening to
+	 * Port for clients by called method 'start' of ComController.
+	 * 
+	 * @param String p - port
+	 */
 	public static void runServer(String p) {
 		try {
 			com = new ComController(Integer.valueOf(p));
 			factory = new PortalViewControllerFactory(db, com);
-			
+
 			db.start();
 		} catch (SQLException e) {
-			// log
 			Logger.log(Level.DEBUG, "BMServer : SQLException was caught");
 			System.out.println("BMServer : SQLException was caught");
 
@@ -64,19 +81,37 @@ public class BMServer extends Application {
 		com.setFactory(factory);
 		com.start();
 
-		
 		periodicSrvc.start();
 
 	}
 
+	/**
+	 * stopServer
+	 * 
+	 * Disconnect from the server.
+	 */
 	public static void stopServer() {
 		System.exit(1);
 	}
 
+	/**
+	 * sendPassword
+	 * 
+	 * Sends to DB controller user password
+	 * 
+	 * @param String password
+	 */
 	public static void sendPassword(String password) {
 		db.setPassword(password);
 	}
 
+	/**
+	 * sendUser
+	 * 
+	 * Sends to DB controller user details
+	 * 
+	 * @param String user
+	 */
 	public static void sendUser(String user) {
 		db.setUser(user);
 	}

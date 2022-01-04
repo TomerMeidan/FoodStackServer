@@ -17,7 +17,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+/**
+ * BMServerWindow
+ * 
+ * This class is the javaFX controller for ServerPort.fxml
+ * This class holds primaryStage, scene.
+ * @author Daniel Ohayon
+ */
 public class BMServerWindow {
 
 	  	@FXML
@@ -45,6 +51,13 @@ public class BMServerWindow {
 	    private Button importButton;
 
 	    private static PeriodicActivityService periodicSrvc = new PeriodicActivityService();
+	    
+	    /**
+		 * start
+		 * 
+		 * This method initializes the needed parameters for this controller.
+		 * @param Stage primaryStage
+		 */
 	    public void start(Stage primaryStage) throws Exception {	
 	   
 			Parent root = FXMLLoader.load(getClass().getResource("/templates/ServerPort.fxml"));
@@ -54,7 +67,12 @@ public class BMServerWindow {
 			primaryStage.show();
 			
 		}
-		
+	    /**
+		 * onClickConnect
+		 * 
+		 * This method called when 'Event' occurred to 'connect' button.
+		 * @param ActionEvent event.
+		 */
 	    @FXML
 	    void onClickConnect(ActionEvent event) {
 	    	String port = txtPort.getText();
@@ -66,6 +84,13 @@ public class BMServerWindow {
 	    	importButton.setDisable(false);
 	    	}
 
+	    
+	    /**
+		 * onClickDis
+		 * 
+		 * This method called when 'Event' occurred to 'Disconnect' button.
+		 * @param ActionEvent event.
+		 */
 	    @FXML
 	    void onClickDis(ActionEvent event) {
 	    	connectBtn.disableProperty().set(false);
@@ -73,12 +98,24 @@ public class BMServerWindow {
 	    	BMServer.stopServer();
 	    }
 	    
-	    //autofill
+	    /**
+		 * onCBClick
+		 * 
+		 * This method called when 'Event' occurred to 'autofill' checkBox.
+		 * @param ActionEvent event.
+		 */
 	    public void onCBClick(ActionEvent event) {
 	    	txtPort.setText(String.valueOf(BMServer.DEFAULT_PORT));
 			txtUser.setText(BMServer.DEFAULT_USER);
 			txtPassword.setText(BMServer.DEFAULT_PASSWORD);	
 	    }
+	    
+	    /**
+		 * onClickImportButton
+		 * 
+		 * This method called when 'Event' occurred to 'import' button.
+		 * @param ActionEvent event.
+		 */
 	    @FXML
 	    void onClickImportButton(ActionEvent event) {
 	    	DataBase db = new DataBase();
