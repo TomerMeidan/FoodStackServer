@@ -2,12 +2,12 @@ package serverSide;
 
 import java.sql.SQLException;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
 import common.Logger;
 import common.Logger.Level;
 import controllers.ComController;
 import controllers.PortalViewControllerFactory;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 /**
  * BMServer
@@ -19,7 +19,7 @@ import controllers.PortalViewControllerFactory;
 public class BMServer extends Application {
 	final public static int DEFAULT_PORT = 5555;
 	final public static String DEFAULT_USER = "root";
-	final public static String DEFAULT_PASSWORD = "Dan11111";
+	final public static String DEFAULT_PASSWORD = "1937258asdf";
 
 	private static DataBase db = new DataBase();
 	private static ComController com;

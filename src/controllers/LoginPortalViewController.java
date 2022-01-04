@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.json.simple.JSONObject;
 
-import ocsf.server.ConnectionToClient;
-import serverSide.DataBase;
 import common.Logger;
-import common.Parser;
 import common.Logger.Level;
 import common.Message;
+import common.Parser;
+import ocsf.server.ConnectionToClient;
+import serverSide.DataBase;
 
 /**
  * LoginPortalViewController
@@ -105,7 +105,7 @@ public class LoginPortalViewController implements PortalViewController {
 		Logger.log(Level.DEBUG, "LoginPortalViewController: handleCommandFromClient: " + json);
 		System.out.println("LoginPortalViewController: handleCommandFromClient: " + json);
 
-		switch (Message.getValue(json, "command")) {
+		switch (Message.getValueString(json, "command")) {
 		case "login was pressed":
 			JSONObject response = db.validateUser(json);
 			if (response.containsKey("portalType")) {
@@ -136,9 +136,9 @@ public class LoginPortalViewController implements PortalViewController {
 		case "home page is ready":
 			// log
 			Logger.log(Level.DEBUG,
-					"LoginPortalViewController: home page : " + Message.getValue(json, "home page") + " is ready");
+					"LoginPortalViewController: home page : " + Message.getValueString(json, "home page") + " is ready");
 			System.out.println(
-					"LoginPortalViewController: home page : " + Message.getValue(json, "home page") + " is ready");
+					"LoginPortalViewController: home page : " + Message.getValueString(json, "home page") + " is ready");
 
 			com.switchPortal(connection, portalType);
 
@@ -167,7 +167,7 @@ public class LoginPortalViewController implements PortalViewController {
 	 */
 	private JSONObject addRoleExtensions(JSONObject response) {
 
-			switch (Message.getValue(response, "portalType")) {
+			switch (Message.getValueString(response, "portalType")) {
 			case "HR":
 				String employerID = db.getEmployerID(response);
 
@@ -196,7 +196,7 @@ public class LoginPortalViewController implements PortalViewController {
 	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject checkIsOnlyUser(JSONObject response) {
-		String id = Message.getValue(response, "userID");
+		String id = Message.getValueString(response, "userID");
 
 		synchronized (com.mutex) {
 			if (!com.isUserOnline(id)) {

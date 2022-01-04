@@ -6,9 +6,9 @@ import org.json.simple.JSONObject;
 
 import common.Logger;
 import common.Logger.Level;
+import common.Parser;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
-import common.Parser;
 
 /**
  * ComController

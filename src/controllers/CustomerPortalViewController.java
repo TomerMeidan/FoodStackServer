@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.json.simple.JSONObject;
 
+import common.Logger;
+import common.Logger.Level;
+import common.Message;
+import common.Parser;
 import ocsf.server.ConnectionToClient;
 import serverSide.DataBase;
-import common.Logger;
-import common.Parser;
-import common.Logger.Level;
-import util.Message;
 
 @SuppressWarnings("unchecked")
 public class CustomerPortalViewController implements PortalViewController {

@@ -5,9 +5,9 @@ import java.io.IOException;
 import org.json.simple.JSONObject;
 
 import common.Logger;
+import common.Logger.Level;
 import common.Message;
 import common.Parser;
-import common.Logger.Level;
 import ocsf.server.ConnectionToClient;
 import serverSide.DataBase;
 
@@ -105,7 +105,7 @@ public class HRPortalViewController implements PortalViewController {
 		Logger.log(Level.DEBUG, "HRPortalViewController: handleCommandFromClient: " + json);
 		System.out.println("HRPortalViewController: handleCommandFromClient: " + json);
 
-		switch (Message.getValue(json, "command")) {
+		switch (Message.getValueString(json, "command")) {
 		case "logout was pressed":
 			handleLogout(json);
 			break;

@@ -6,12 +6,12 @@ import java.sql.SQLException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import ocsf.server.ConnectionToClient;
-import serverSide.DataBase;
 import common.Logger;
+import common.Logger.Level;
 import common.Message;
 import common.Parser;
-import common.Logger.Level;
+import ocsf.server.ConnectionToClient;
+import serverSide.DataBase;
 
 public class CEOPortalViewController implements PortalViewController {
 
@@ -85,9 +85,9 @@ public class CEOPortalViewController implements PortalViewController {
 
 		default:
 			Logger.log(Level.INFO,
-					"CEOPortalViewController: handleCommandFromClient: " + Message.getValue(json, "command"));
+					"CEOPortalViewController: handleCommandFromClient: " + Message.getValueString(json, "command"));
 			System.out
-					.println("CEOPortalViewController: handleCommandFromClient: " + Message.getValue(json, "command"));
+					.println("CEOPortalViewController: handleCommandFromClient: " + Message.getValueString(json, "command"));
 			break;
 
 		}
@@ -177,8 +177,8 @@ public class CEOPortalViewController implements PortalViewController {
 	 * 
 	 * */
 	private void handleEventViewMonthlyReports(JSONObject json) {
-		Logger.log(Level.WARNING, "Message received from user: " + Message.getValue(json, "message"));
-		System.out.println("Message received from user: " + Message.getValue(json, "message"));
+		Logger.log(Level.WARNING, "Message received from user: " + Message.getValueString(json, "message"));
+		System.out.println("Message received from user: " + Message.getValueString(json, "message"));
 
 		JSONObject allReportsData = new JSONObject();
 		allReportsData.put("command", "update");
@@ -216,8 +216,8 @@ public class CEOPortalViewController implements PortalViewController {
 	 * 
 	 * */
 	private void handleEventViewQuarterlyIncomeReports(JSONObject json) {
-		Logger.log(Level.WARNING, "Message received from user: " + Message.getValue(json, "message"));
-		System.out.println("Message received from user: " + Message.getValue(json, "message"));
+		Logger.log(Level.WARNING, "Message received from user: " + Message.getValueString(json, "message"));
+		System.out.println("Message received from user: " + Message.getValueString(json, "message"));
 
 		JSONObject incomeReportsData = new JSONObject(); // holds all related quarterly income report info
 		incomeReportsData.put("command", "update");

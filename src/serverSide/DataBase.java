@@ -16,26 +16,21 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import java.util.Set;
-import java.util.TreeMap;
-
-import java.util.ArrayList;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
+import common.DateParser;
 import common.Logger;
 import common.Logger.Level;
-import util.DateParser;
-import util.Meal;
+import common.Meal;
+import common.Message;
+import common.MustFeature;
+import common.OptionalFeature;
+import common.Order;
 import util.Menu;
-import util.Message;
-import util.MustFeature;
-import util.OptionalFeature;
-import util.Order;
 
 /**
  * DataBase
@@ -1067,8 +1062,8 @@ public class DataBase {
 
 				String restaurantName = rs.getString("RestaurantName");
 				String mealTypeName = rs.getString("ItemType");
-				String month = dateParser(rs.getString("OrderDate"), "month");
-				String year = dateParser(rs.getString("OrderDate"), "year");
+				String month = DateParser.dateParser(rs.getString("OrderDate"), "month");
+				String year = DateParser.dateParser(rs.getString("OrderDate"), "year");
 
 				if (firstEnterance) {
 					currentRestaurantName = restaurantName;
@@ -1920,85 +1915,6 @@ public class DataBase {
 	}
 
 	// ------------------------------------------------------
-
-	/**
-	 * Parsering the type of date information from an SQL date string
-	 * 
-	 * @param dateString - for example: Fri Nov 26 12:43:27 IST 2021
-	 * @param type       - year, month, day, time
-	 * @return
-	 */
-	public static String dateParser(String dateString, String type) {
-
-		String parsedString = "";
-
-		switch (type) {
-		case "year":
-			parsedString = dateString.substring(20, 24);
-			break;
-		case "month":
-			switch (dateString.substring(0, 3)) {
-			case "Jan":
-				parsedString = "01";
-				break;
-			case "Feb":
-				parsedString = "02";
-				break;
-			case "Mar":
-				parsedString = "03";
-				break;
-			case "Apr":
-				parsedString = "04";
-				break;
-			case "May":
-				parsedString = "05";
-				break;
-			case "Jun":
-				parsedString = "06";
-				break;
-			case "Jul":
-				parsedString = "07";
-				break;
-			case "Aug":
-				parsedString = "08";
-				break;
-			case "Sep":
-				parsedString = "09";
-				break;
-			case "Oct":
-				parsedString = "10";
-				break;
-			case "Nov":
-				parsedString = "11";
-				break;
-			case "Dec":
-				parsedString = "12";
-				break;
-			default:
-				System.out.println("Parser: dateSQL: Invalid month detected, parsing did not succeed.");
-				break;
-			}
-			break;
-		case "day":
-			parsedString = dateString.substring(4, 6);
-			break;
-		case "seconds":
-			parsedString = dateString.substring(13, 15);
-			break;
-		case "minutes":
-			parsedString = dateString.substring(10, 12);
-			break;
-		case "hours":
-			parsedString = dateString.substring(7, 9);
-			break;
-		default:
-			System.out.println("Parser: dateSQL: Invalid date value detected, parsing did not succeed.");
-			break;
-		}
-
-		return parsedString;
-
-	}
 
 	/**
 	 * registerSupplier

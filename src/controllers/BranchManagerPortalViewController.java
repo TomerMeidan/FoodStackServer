@@ -6,12 +6,12 @@ import java.sql.SQLException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import ocsf.server.ConnectionToClient;
-import serverSide.DataBase;
 import common.Logger;
+import common.Logger.Level;
 import common.Message;
 import common.Parser;
-import common.Logger.Level;
+import ocsf.server.ConnectionToClient;
+import serverSide.DataBase;
 
 /**
  * BranchManagerPortalViewController
@@ -106,7 +106,7 @@ public class BranchManagerPortalViewController implements PortalViewController {
 		Logger.log(Level.DEBUG, "BranchManagerPortalViewController: handleCommandFromClient: " + msg);
 		System.out.println("BranchManagerPortalViewController: handleCommandFromClient: " + msg);
 
-		switch (Message.getValue(msg, "command")) {
+		switch (Message.getValueString(msg, "command")) {
 		case "logout was pressed":
 			handleLogout(msg);
 			break;
@@ -168,10 +168,10 @@ public class BranchManagerPortalViewController implements PortalViewController {
 	 * @author Roman Milman
 	 */
 	private void handleSwitchStatus(JSONObject msg) {
-		String role = Message.getValue(msg, "Role");
+		String role = Message.getValueString(msg, "Role");
 		String newStatus;
 
-		if ("active".equals(Message.getValue(msg, "Status")))
+		if ("active".equals(Message.getValueString(msg, "Status")))
 			newStatus = "freeze";
 		else
 			newStatus = "active";
@@ -375,7 +375,7 @@ public class BranchManagerPortalViewController implements PortalViewController {
 	 * @author Roman Milman
 	 */
 	private void handleSwitchRole(JSONObject msg) {
-		String newRole = Message.getValue(msg, "new role");
+		String newRole = Message.getValueString(msg, "new role");
 
 		switch (newRole) {
 		case "Customer":
@@ -494,8 +494,8 @@ public class BranchManagerPortalViewController implements PortalViewController {
 	 */
 	@SuppressWarnings("unchecked")
 	private void handleEventMonthlyReports(JSONObject msg) {
-		Logger.log(Level.WARNING, "Message received from user: " + Message.getValue(msg, "message"));
-		System.out.println("Message received from user: " + Message.getValue(msg, "message"));
+		Logger.log(Level.WARNING, "Message received from user: " + Message.getValueString(msg, "message"));
+		System.out.println("Message received from user: " + Message.getValueString(msg, "message"));
 
 		JSONObject allReportsData = new JSONObject();
 		allReportsData.put("command", "update");
@@ -629,7 +629,7 @@ public class BranchManagerPortalViewController implements PortalViewController {
 	@SuppressWarnings("unchecked")
 	private void handleRegistration(JSONObject msg) {
 
-		switch (Message.getValue(msg, "register type")) {
+		switch (Message.getValueString(msg, "register type")) {
 		case "regular":
 			handleRegistrationRegularCustomer(msg);
 			break;
