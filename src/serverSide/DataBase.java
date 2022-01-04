@@ -101,9 +101,9 @@ public class DataBase {
 					response.put("portalType", rs.getString("Role"));
 					response.put("userID", rs.getString("UserID"));
 					userID = rs.getString("UserID");
-					
-					switch(rs.getString("Role")) {
-					
+
+					switch (rs.getString("Role")) {
+
 					case "Customer":
 						status = getStatusByRole(userID, "customers");
 						break;
@@ -119,23 +119,24 @@ public class DataBase {
 					default:
 						status = "";
 						break;
-					
+
 					}
-										
+
 					response.put("branch", rs.getString("Branch"));
 					response.put("FirstName", rs.getString("FirstName"));
 					response.put("LastName", rs.getString("LastName"));
 					response.put("userID", userID);
-					
-					if(status == null) status = "null";
-					
-					if (!status.equals("") && !status.equals("active")){	
-						
+
+					if (status == null)
+						status = "null";
+
+					if (!status.equals("") && !status.equals("active")) {
+
 						response.put("status", "notOk");
 						response.put("notOk", status);
-						
-						}
-					else response.put("status", "ok");
+
+					} else
+						response.put("status", "ok");
 					return response;
 				}
 				// log
@@ -310,7 +311,7 @@ public class DataBase {
 	/**
 	 * This method adds an order to the database using the help of a few private
 	 * methods:<br>
-	 * addMealsPerOrder(), , updateRefundBalance(), handleBusCustomerBalance()
+	 * addMealsPerOrder, , updateRefundBalance, handleBusCustomerBalance, saveOrderDetailsInDatabase
 	 * <p>
 	 * Make sure to include the correct keys: "totalPrice", "userID", "userID",
 	 * "paymentType", "orderTime", "dueDate", "restaurantName", "pickUpType"
@@ -328,59 +329,155 @@ public class DataBase {
 	 *         .
 	 */
 	public JSONObject addOrder(JSONObject order) {
-		PreparedStatement preStmt;
 		JSONObject response = new JSONObject();
-		boolean addFailFlag = true; // flag to check if adding to database fails
 		response.put("command", "update");
 		try {
-			conn.setAutoCommit(false);
-			Integer totalPrice = Message.getValueLong(order, "totalPrice").intValue();
-			String userID = Message.getValueString(order, "userID");
+			conn.setAutoCommit(false); //set to true in saveOrderDetailsInDatabase
 			String paymentType = Message.getValueString(order, "paymentType");
-			preStmt = conn.prepareStatement(
-					"INSERT INTO orders (UserID,OrderDate,DueDate, RestaurantName, PaymentType, Total, PickUpType, EarlyBooking,Address,PhoneNumber,Status,SupplierID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-					Statement.RETURN_GENERATED_KEYS);
-			preStmt.setInt(1, Integer.valueOf(userID)); // UserID
-			preStmt.setString(2, Message.getValueString(order, "orderTime")); // OrderDate
-			preStmt.setString(3, Message.getValueString(order, "dueDate")); // dueDate
-			preStmt.setString(4, Message.getValueString(order, "restaurantName"));
-			preStmt.setString(5, paymentType);
-			preStmt.setInt(6, totalPrice);
-			preStmt.setString(7, Message.getValueString(order, "pickUpType"));// order type
-			preStmt.setString(8, Message.getValueString(order, "earlyBooking"));
-			preStmt.setString(9, Message.getValueString(order, "address"));// address
-			preStmt.setString(10, Message.getValueString(order, "phoneNumber"));// phone
-			preStmt.setString(11, "Waiting for approval");// status
-			preStmt.setString(12, Message.getValueString(order, "supplierID"));//
-			preStmt.executeUpdate();
-			ResultSet keys = preStmt.getGeneratedKeys();
-			keys.next();
-
-			order.put("orderID", keys.getInt(1));
-			if (addMealsPerOrder(order))
-				addFailFlag = false;
-			updateRefundBalance(order);
 			if (paymentType.equals("Business")) {
-				if (handleBusCustomerBalance(order)) {
-					addFailFlag = false;
-				} else {
-					addFailFlag = true;
+				int currentBalance = getBusinessCustomerBalance(order);
+				if (!handleBusCustomerBalance(order, currentBalance)) 
+				{
+					conn.rollback();
+					response.put("currentBalance", currentBalance);
+					response.put("update", "Order failed");
+					response.put("reason",  "Not enough in balance");
+					conn.setAutoCommit(true);
+					return response;
 				}
 			}
-			if (addFailFlag) {
+			if(!saveOrderDetailsInDatabase(order)) {
 				conn.rollback();
-				response.put("update", "Order cancelled, not enough funds");
-			} else {
-				conn.commit();
-				response.put("update", "Order was successfuly added");
+				conn.setAutoCommit(true);
+				response.put("update", "Order failed");
+				response.put("reason", "Error in system");
+				return response;
 			}
-			conn.setAutoCommit(true);
+			response.put("update", "Order was successfuly added");
 		} catch (SQLException e) {
 			System.out.println(e);
 			System.out.println("DATABASE: SQLException in addOrder");
 			Logger.log(Level.WARNING, "DATABASE: SQLException in addOrder");
 		}
 		return response;
+	}
+	
+	/**Adds the order into database
+	 * @param order
+	 * @return true if success, else false
+	 * @see addOrder method for more info
+	 */
+	public boolean saveOrderDetailsInDatabase(JSONObject order) {
+		handleRefundBalance(order);
+		Integer totalPrice = Message.getValueLong(order, "totalPrice").intValue();
+		String userID = Message.getValueString(order, "userID");
+		String paymentType = Message.getValueString(order, "paymentType");
+	try {
+		PreparedStatement preStmt = conn.prepareStatement(
+				"INSERT INTO orders (UserID,OrderDate,DueDate, RestaurantName, PaymentType, Total, PickUpType, EarlyBooking,Address,PhoneNumber,Status,SupplierID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+				Statement.RETURN_GENERATED_KEYS);
+		preStmt.setInt(1, Integer.valueOf(userID)); // UserID
+		preStmt.setString(2, Message.getValueString(order, "orderTime")); // OrderDate
+		preStmt.setString(3, Message.getValueString(order, "dueDate")); // dueDate
+		preStmt.setString(4, Message.getValueString(order, "restaurantName"));
+		preStmt.setString(5, paymentType);
+		preStmt.setInt(6, totalPrice);
+		preStmt.setString(7, Message.getValueString(order, "pickUpType"));// order type
+		preStmt.setString(8, Message.getValueString(order, "earlyBooking"));
+		preStmt.setString(9, Message.getValueString(order, "address"));// address
+		preStmt.setString(10, Message.getValueString(order, "phoneNumber"));// phone
+		preStmt.setString(11, "Waiting for approval");// status
+		preStmt.setString(12, Message.getValueString(order, "supplierID"));//
+		preStmt.executeUpdate();
+		ResultSet keys = preStmt.getGeneratedKeys();
+		keys.next();
+		order.put("orderID", keys.getInt(1));
+		if(!addMealsPerOrder(order)) 
+			return false;
+		conn.commit();
+		conn.setAutoCommit(true);
+	}
+	catch(SQLException e) {
+		System.out.println("DATABASE: SQLException in saveOrderDetailsInDatabase: " +e);
+		return false;
+	}	
+		return true;
+	}
+
+	/**
+	 * if a customer is Business customer, he has a Balance (daily cap).
+	 * <p>
+	 * This method updates the Balance of the customer in the database
+	 * <p>
+	 * Make sure to include keys:<br>
+	 * "userID", with value String<br>
+	 * "leftToPay", with value Long<br>
+	 * 
+	 * @author mosa
+	 * @param order
+	 * @return false if customer doesn't have enough in his balance else true
+	 */
+	private boolean handleBusCustomerBalance(JSONObject order, int balance) {
+		String userID = Message.getValueString(order, "userID");
+		int leftToPay = Message.getValueLong(order, "leftToPay").intValue();
+		int newBalance = leftToPay;
+		try {
+			newBalance = balance - leftToPay;
+			if (newBalance < 0)
+				return false;
+			PreparedStatement preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
+			preStmt.setInt(1, newBalance);
+			preStmt.setString(2, userID);
+			preStmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e);
+			System.out.println("DATABASE: SQLException in handleBusCustomerBalance");
+			Logger.log(Level.WARNING, "DATABASE: SQLException in handleBusCustomerBalance");
+		}
+		return true;
+	}
+	
+	/**ONLY USED BEFORE DIRECTLY CALLING saveOrderDetailsInDatabase in controller
+	 * Change the business customer's balance to 0
+	 * @param userID
+	 * @return
+	 */
+	public boolean zeroBusinessCustomerBalance(String userID) {
+		try {
+			conn.setAutoCommit(false); //the reason why this method can't be used alone
+			PreparedStatement preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
+			preStmt.setInt(1, 0);
+			preStmt.setString(2, userID);
+			preStmt.executeUpdate();
+		} catch (SQLException e) {
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.out.println(e);
+			System.out.println("DATABASE: SQLException in handleBusCustomerBalance");
+			Logger.log(Level.WARNING, "DATABASE: SQLException in handleBusCustomerBalance");
+			return false;
+		}
+		return true;
+	}
+
+	private int getBusinessCustomerBalance(JSONObject order) {
+		String userID = Message.getValueString(order, "userID");
+		try {
+			PreparedStatement preStmt = conn.prepareStatement("SELECT Balance FROM customers WHERE UserID = ?");
+			preStmt.setString(1, userID);
+			ResultSet rs = preStmt.executeQuery();
+			if (rs.next())
+				return rs.getInt("Balance");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return 0; // ??
 	}
 
 	/**
@@ -455,47 +552,6 @@ public class DataBase {
 	}
 
 	/**
-	 * if a customer is Business customer, he has a Balance (daily cap).
-	 * <p>
-	 * This method updates the Balance of the customer in the database
-	 * <p>
-	 * Make sure to include keys:<br>
-	 * "userID", with value String<br>
-	 * "leftToPay", with value Long<br>
-	 * 
-	 * @author mosa
-	 * @param order
-	 * @return false if customer doesn't have enough in his balance else true
-	 */
-	private boolean handleBusCustomerBalance(JSONObject order) {
-		String userID = Message.getValueString(order, "userID");
-		int leftToPay = Message.getValueLong(order, "leftToPay").intValue();
-		int newBalance = leftToPay;
-		int balance;
-		try {
-			PreparedStatement preStmt = conn.prepareStatement("SELECT Balance FROM customers WHERE UserID = ?");
-			preStmt.setString(1, userID);
-			ResultSet rs = preStmt.executeQuery();
-			if (rs.next()) {
-				balance = rs.getInt("Balance");
-			} else
-				balance = 0; // ??
-			newBalance = balance - leftToPay;
-			if (newBalance < 0)
-				return false;
-			preStmt = conn.prepareStatement("UPDATE customers SET Balance =? WHERE UserID = ?");
-			preStmt.setInt(1, newBalance);
-			preStmt.setString(2, userID);
-			preStmt.executeUpdate();
-		} catch (SQLException e) {
-			System.out.println(e);
-			System.out.println("DATABASE: SQLException in handleBusCustomerBalance");
-			Logger.log(Level.WARNING, "DATABASE: SQLException in handleBusCustomerBalance");
-		}
-		return true;
-	}
-
-	/**
 	 * This method updates the refund balance of a business customer<br>
 	 * Condition: key "refundBalanceUsed" has value boolean true
 	 * 
@@ -504,7 +560,7 @@ public class DataBase {
 	 *              "userID", with value String<br>
 	 *              "supplierID", with value String
 	 */
-	private void updateRefundBalance(JSONObject order) {
+	private void handleRefundBalance(JSONObject order) {
 		if (!((boolean) order.get("refundBalanceUsed")))
 			return;
 		int refundBalance = Message.getValueLong(order, "refundBalance").intValue();
@@ -548,12 +604,15 @@ public class DataBase {
 	/**
 	 * registerRegularCustomer
 	 * 
-	 * This method updates customer in database as 'active' and sets w4c and id columns.
-	 * This method sets user as 'Customer'.
-	 * This method sets 'username' and 'password' as given in input.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for customers accordingly values.
-	 * @return JSONObject - "update" : "regular customer has been registered" if succeed, otherwise "could not register regular customer"
+	 * This method updates customer in database as 'active' and sets w4c and id
+	 * columns. This method sets user as 'Customer'. This method sets 'username' and
+	 * 'password' as given in input. This method updates both Tables, if any fails
+	 * rollback's.
+	 * 
+	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for
+	 *                   customers accordingly values.
+	 * @return JSONObject - "update" : "regular customer has been registered" if
+	 *         succeed, otherwise "could not register regular customer"
 	 * @author Roman Milman
 	 */
 	public JSONObject registerRegularCustomer(JSONObject json) {
@@ -635,8 +694,9 @@ public class DataBase {
 	/**
 	 * isEmployerExists
 	 * 
-	 * This method checks if employer exists in DB.
-	 * This method returns employersId as defined in DB, otherwise returns -1.
+	 * This method checks if employer exists in DB. This method returns employersId
+	 * as defined in DB, otherwise returns -1.
+	 * 
 	 * @param JSONObject json - includes: 'employer name'.
 	 * @return int
 	 * @author Roman Milman
@@ -678,13 +738,16 @@ public class DataBase {
 	/**
 	 * registerBusinessCustomer
 	 * 
-	 * This method updates customer in database as 'inactive' and sets w4c, id, employerID and balance columns.
-	 * This method sets user as 'Business Customer'.
-	 * This method sets 'username' and 'password' as given in input.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for customers accordingly values.
-	 * @param int employerID
-	 * @return JSONObject - "update" : "business customer has been registered" if succeed, otherwise "could not add business user to database"
+	 * This method updates customer in database as 'inactive' and sets w4c, id,
+	 * employerID and balance columns. This method sets user as 'Business Customer'.
+	 * This method sets 'username' and 'password' as given in input. This method
+	 * updates both Tables, if any fails rollback's.
+	 * 
+	 * @param JSONObject json - includes: 'w4c','id','username','password' keys for
+	 *                   customers accordingly values.
+	 * @param int        employerID
+	 * @return JSONObject - "update" : "business customer has been registered" if
+	 *         succeed, otherwise "could not add business user to database"
 	 * @author Roman Milman
 	 */
 	public JSONObject registerBusinessCustomer(JSONObject json, int employerID) {
@@ -767,7 +830,9 @@ public class DataBase {
 	/**
 	 * getInactiveEmployers
 	 * 
-	 * This method builds JSONArray with employers that defined with status 'inactive' in DB, in the given branch as input.
+	 * This method builds JSONArray with employers that defined with status
+	 * 'inactive' in DB, in the given branch as input.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "employers" : JSONArray with employers
 	 * @author Roman Milman
@@ -843,8 +908,10 @@ public class DataBase {
 	 * activeEmployer
 	 * 
 	 * This method sets employers status to 'active' by given name as input.
+	 * 
 	 * @param JSONObject json - includes: 'name'.
-	 * @return JSONObject - "update" : "employer has been activated" if succeeded, otherwise null.
+	 * @return JSONObject - "update" : "employer has been activated" if succeeded,
+	 *         otherwise null.
 	 * @author Roman Milman
 	 */
 	public JSONObject activeEmployer(JSONObject json) {
@@ -1898,12 +1965,16 @@ public class DataBase {
 	/**
 	 * registerSupplier
 	 * 
-	 * This method updates supplier in database as 'active' and sets deliveryTypes columns.
-	 * This method sets 'username' and 'password' as given in input.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param JSONObject json - includes: 'supplier name','username','password','delivery types' keys for supplier info accordingly.
+	 * This method updates supplier in database as 'active' and sets deliveryTypes
+	 * columns. This method sets 'username' and 'password' as given in input. This
+	 * method updates both Tables, if any fails rollback's.
+	 * 
+	 * @param JSONObject json - includes: 'supplier
+	 *                   name','username','password','delivery types' keys for
+	 *                   supplier info accordingly.
 	 * @author Roman Milman
-	 * @return JSONObject - "update" : "supplier has been registered" if succeed, other wise "could not register supplier"
+	 * @return JSONObject - "update" : "supplier has been registered" if succeed,
+	 *         other wise "could not register supplier"
 	 */
 	public JSONObject registerSupplier(JSONObject json) {
 		JSONObject response = new JSONObject();
@@ -3386,7 +3457,9 @@ public class DataBase {
 	/**
 	 * getInactiveCustomer
 	 * 
-	 * This method builds JSONArray with customers that defined with status null in DB.
+	 * This method builds JSONArray with customers that defined with status null in
+	 * DB.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "customers" : JSONArray with customers
 	 * @author Roman Milman
@@ -3430,7 +3503,9 @@ public class DataBase {
 	/**
 	 * getInactiveSupplier
 	 * 
-	 * This method builds JSONArray with unregistered suppliers by given branch as input.
+	 * This method builds JSONArray with unregistered suppliers by given branch as
+	 * input.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "suppliers" : JSONArray with suppliers
 	 * @author Roman Milman
@@ -3476,7 +3551,9 @@ public class DataBase {
 	/**
 	 * getAllCustomersByBranch
 	 * 
-	 * This method builds JSONArray with all customers by given branch as input; except status is null.
+	 * This method builds JSONArray with all customers by given branch as input;
+	 * except status is null.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
 	 * @return JSONObject - "customers" : JSONArray with customers
 	 * @author Roman Milman
@@ -3523,11 +3600,14 @@ public class DataBase {
 	/**
 	 * switchRoleToBusinessCustomer
 	 * 
-	 * This method switches customers role to 'Business Customer', handles all the necessary changes in the Tables.
-	 * This method updates both Tables, if any fails rollback's.
-	 * @param int employerUserID.
+	 * This method switches customers role to 'Business Customer', handles all the
+	 * necessary changes in the Tables. This method updates both Tables, if any
+	 * fails rollback's.
+	 * 
+	 * @param int        employerUserID.
 	 * @param JSONObject json - includes: 'id'.
-	 * @return JSONObject - "update" : "customer role has been switched" if succeed, otherwise "could not switch customer role", 'id' : same as input.
+	 * @return JSONObject - "update" : "customer role has been switched" if succeed,
+	 *         otherwise "could not switch customer role", 'id' : same as input.
 	 * @author Roman Milman
 	 */
 	public JSONObject switchRoleToBusinessCustomer(JSONObject json, int employerUserID) {
@@ -3611,10 +3691,13 @@ public class DataBase {
 	/**
 	 * switchRoleToRegularCustomer
 	 * 
-	 * This method switches customers role to 'Customer', handles all the necessary changes in the Tables.
-	 * This method updates both Tables, if any fails rollback's.
+	 * This method switches customers role to 'Customer', handles all the necessary
+	 * changes in the Tables. This method updates both Tables, if any fails
+	 * rollback's.
+	 * 
 	 * @param JSONObject json - includes: 'id'.
-	 * @return JSONObject - "update" : "customer role has been switched" if succeed, otherwise "could not switch customer role", 'id' : same as input.
+	 * @return JSONObject - "update" : "customer role has been switched" if succeed,
+	 *         otherwise "could not switch customer role", 'id' : same as input.
 	 * @author Roman Milman
 	 */
 	public JSONObject switchRoleToRegularCustomer(JSONObject json) {
@@ -3859,10 +3942,13 @@ public class DataBase {
 	/**
 	 * getAllUsersByBranch
 	 * 
-	 * This method builds customers JSONArray, employers JSONArray, hrs JSONArray, suppliers JSONArray.
+	 * This method builds customers JSONArray, employers JSONArray, hrs JSONArray,
+	 * suppliers JSONArray.
+	 * 
 	 * @param JSONObject json - includes: 'branch'.
-	 * @return JSONObject - "customers" : customers JSONArray, "employers" : employers JSONArray, "hrs" : hrs JSONArray, "suppliers" : suppliers JSONArray.
-	 * returns null if any query faild.
+	 * @return JSONObject - "customers" : customers JSONArray, "employers" :
+	 *         employers JSONArray, "hrs" : hrs JSONArray, "suppliers" : suppliers
+	 *         JSONArray. returns null if any query faild.
 	 * @author Roman Milman
 	 */
 	public JSONObject getAllUsersByBranch(JSONObject json) {
@@ -3899,9 +3985,11 @@ public class DataBase {
 	/**
 	 * getCustomersForGetAllUsersByBranch
 	 * 
-	 * This method builds customers JSONArray with all customers that are registered in DB.
+	 * This method builds customers JSONArray with all customers that are registered
+	 * in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "customers" 
+	 * @return JSONArray - "customers"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -3932,9 +4020,11 @@ public class DataBase {
 	/**
 	 * getEmployersForGetAllUsersByBranch
 	 * 
-	 * This method builds employers JSONArray with all employers that are registered in DB.
+	 * This method builds employers JSONArray with all employers that are registered
+	 * in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "employers" 
+	 * @return JSONArray - "employers"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -3965,8 +4055,9 @@ public class DataBase {
 	 * getHrsForGetAllUsersByBranch
 	 * 
 	 * This method builds hrs JSONArray with all hrs that are registered in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "hrs" 
+	 * @return JSONArray - "hrs"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -3997,9 +4088,11 @@ public class DataBase {
 	/**
 	 * getSuppliersForGetAllUsersByBranch
 	 * 
-	 * This method builds suppliers JSONArray with all suppliers that are registered in DB.
+	 * This method builds suppliers JSONArray with all suppliers that are registered
+	 * in DB.
+	 * 
 	 * @param String branch
-	 * @return JSONArray - "suppliers" 
+	 * @return JSONArray - "suppliers"
 	 * @throws SQLException
 	 * @author Roman Milman
 	 */
@@ -4030,9 +4123,11 @@ public class DataBase {
 	 * switchStatusToCustomer
 	 * 
 	 * This method updates customers status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name','username'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToCustomer(JSONObject json, String newStatus) {
@@ -4070,9 +4165,11 @@ public class DataBase {
 	 * switchStatusToEmployer
 	 * 
 	 * This method updates employers status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToEmployer(JSONObject json, String newStatus) {
@@ -4109,9 +4206,11 @@ public class DataBase {
 	 * switchStatusToHR
 	 * 
 	 * This method updates HR status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name','username'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToHR(JSONObject json, String newStatus) {
@@ -4149,9 +4248,11 @@ public class DataBase {
 	 * switchStatusToSupplier
 	 * 
 	 * This method updates supplier status to newStatus by input.
+	 * 
 	 * @param JSONObject json - includes: 'Phone number','Email','Name'.
-	 * @param String newStatus.
-	 * @return JSONObject - "update" : "user status has been changed" if succeeded, otherwise "could not change user status".
+	 * @param String     newStatus.
+	 * @return JSONObject - "update" : "user status has been changed" if succeeded,
+	 *         otherwise "could not change user status".
 	 * @author Roman Milman
 	 */
 	public JSONObject switchStatusToSupplier(JSONObject json, String newStatus) {

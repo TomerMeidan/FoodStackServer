@@ -35,13 +35,11 @@ public class CustomerPortalViewController implements PortalViewController {
 		// TODO Auto-generated method stub
 
 	}
-
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
 
 	}
-
 	@Override
 	public void handleCommandFromClient(JSONObject json) {
 		switch (Message.getValueString(json, "command")) {
@@ -99,6 +97,8 @@ public class CustomerPortalViewController implements PortalViewController {
 		case "Order is ready":
 			handleOrderReady();
 			break;
+		case "Clicked yes after order failed":
+			handleClickedYesAfterOrderFail(Message.getValueJObject(json, "order"));
 		default:
 			// log
 			Logger.log(Level.WARNING,
@@ -107,6 +107,32 @@ public class CustomerPortalViewController implements PortalViewController {
 					"CustomerPortalViewController: handleCommandFromClient: Unknown command : " + json.get("command"));
 			break;
 		}
+	}
+
+	private void handleClickedYesAfterOrderFail(JSONObject order) {
+		JSONObject msgForClient = new JSONObject();
+		msgForClient.put("command", "update");
+		order.put("userID", userID);
+		boolean fail = false;
+		if (db.zeroBusinessCustomerBalance(userID)) {
+			if (db.saveOrderDetailsInDatabase(order))
+				msgForClient.put("update", "Order was successfuly added");
+			else fail = true;
+			}
+		if(fail){
+			msgForClient.put("update", "Show pop up: failed order");
+			msgForClient.put("reason", "Error in system");
+		}
+		try {
+			connection.sendToClient(Parser.encode(msgForClient));
+		} catch (IOException e) {
+			// log
+			Logger.log(Level.WARNING,
+					"CustomerPortalViewController: handleCommandFromClient: IOException Clicked yes after order failed");
+			System.out.println(
+					"CustomerPortalViewController: handleCommandFromClient: IOException Clicked yes after order failed");
+		}
+
 	}
 
 	private void handleOrderReady() {
@@ -119,8 +145,7 @@ public class CustomerPortalViewController implements PortalViewController {
 			// log
 			Logger.log(Level.WARNING,
 					"CustomerPortalViewController: handleCommandFromClient: IOException in Order is ready");
-			System.out.println(
-					"CustomerPortalViewController: handleCommandFromClient: IOException in Order is ready");
+			System.out.println("CustomerPortalViewController: handleCommandFromClient: IOException in Order is ready");
 		}
 	}
 
@@ -273,10 +298,10 @@ public class CustomerPortalViewController implements PortalViewController {
 				if (supplierCon != null)
 					supplierCon.sendToClient(Parser.encode(msgForClient));
 			} else {
-				msgForClient.clear();
-				msgForClient.put("command", "update");
-				msgForClient.put("update", "Show pop up: not enough funds");
-				msgForClient.put("orderDetails", order);
+
+				// msgForClient.put("command", "update");
+				msgForClient.put("update", "Show pop up: failed order");
+				// msgForClient.put("orderDetails", order);
 			}
 			connection.sendToClient(Parser.encode(msgForClient));
 		} catch (IOException e) {
