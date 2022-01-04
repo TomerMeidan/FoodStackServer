@@ -2542,6 +2542,7 @@ public class DataBase {
 						stmtPOptional = conn.prepareStatement(
 								"DELETE FROM optionalfeatures WHERE optionalfeatures.OptionalFeatureID = " + opID);
 						stmtPOptional.executeUpdate();
+						optionalEdit.remove(opEdit);
 						response.put("feedback", feedback + newOpName + " optional feature deleted");
 					} else {
 						if (edit) {
@@ -2573,6 +2574,7 @@ public class DataBase {
 						stmtPMust = conn.prepareStatement(
 								"DELETE FROM mustfeatures WHERE mustfeatures.MustFeatureID = " + muID);
 						stmtPMust.executeUpdate();
+						mustEdit.remove(muEdit);
 						response.put("feedback", feedback + newMuName + " must feature deleted");
 					} else {
 						if (edit) {
