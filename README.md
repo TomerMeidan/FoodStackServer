@@ -1,4 +1,4 @@
-# FoodStackServer
+# FoodStack Server Side
 ## About
 The Server Side is responsible for handling all server-side operations required by the system. 
 This includes handling requests from clients, managing the database, and performing various business logic operations.
